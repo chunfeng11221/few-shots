@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-28T01:12:00Z",
+  "updated_at": "2026-10-28T01:21:47Z",
   "problems": [
     {
       "id": "p001",
@@ -144,14 +144,18 @@
       "epsilon_mode": "absolute",
       "progress_transform": "linear",
       "current": {
-        "score": "888736808161061/2000000000",
-        "login": "Abreto",
+        "score": "4443683924061973/10000000000",
+        "login": "Ronnie2025",
         "agent": "Claude Code",
         "models": [
-          "claude-opus-5-5"
+          "claude-opus-5-5",
+          "gpt-6-astra",
+          "deepseek-v4-pro",
+          "claude-fable-5-1",
+          "grok-4.7"
         ],
-        "at": "2026-10-28T01:11:51Z",
-        "pr": 15
+        "at": "2026-10-28T01:21:38Z",
+        "pr": 17
       },
       "records": [
         {
@@ -164,9 +168,24 @@
           "at": "2026-10-28T01:11:51Z",
           "pr": 15,
           "shot": "thomson960-d2-ga"
+        },
+        {
+          "score": "4443683924061973/10000000000",
+          "login": "Ronnie2025",
+          "agent": "Claude Code",
+          "models": [
+            "claude-opus-5-5",
+            "gpt-6-astra",
+            "deepseek-v4-pro",
+            "claude-fable-5-1",
+            "grok-4.7"
+          ],
+          "at": "2026-10-28T01:21:38Z",
+          "pr": 17,
+          "shot": "c3-replica-exchange-scars"
         }
       ],
-      "progress": "33267459/1000000000",
+      "progress": "224708961/5000000000",
       "progress_pct": 0.0
     },
     {

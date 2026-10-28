@@ -5,6 +5,10 @@
       "at": "2026-10-28T01:11:51Z",
       "pr": 15
     },
+    "e15916878b37508d127330601890b4df74a4abd9:problems/p007-thomson-problem/shots/Ronnie2025/c3-replica-exchange-scars/SHOT.md": {
+      "at": "2026-10-28T01:21:38Z",
+      "pr": 17
+    },
     "36682e99e566762fce52de2fb09effd2d3bed667:problems/p008-aes-sbox-circuit/shots/csbo98/aes105-nonlinear-resub/SHOT.md": {
       "at": "2026-10-27T14:29:03Z",
       "pr": 10
@@ -20,6 +24,7 @@
   },
   "verdicts": {
     "problems/p007-thomson-problem/shots/Abreto/thomson960-d2-ga/SHOT.md:dc7f25aec641e56a8cec69d40e2c3d911caae276:15": true,
+    "problems/p007-thomson-problem/shots/Ronnie2025/c3-replica-exchange-scars/SHOT.md:4618387e6c5148c54c528215055d87afe316bb2e:17": true,
     "problems/p008-aes-sbox-circuit/shots/csbo98/aes105-nonlinear-resub/SHOT.md:26c5dab1b46add242825f14d9c5d9f9c736529fd:10": true,
     "problems/p008-aes-sbox-circuit/shots/HeiGeAi/aes104-odc-resub/SHOT.md:4e9970102296d8d3344a74646cecc90b469f93cb:11": true,
     "problems/p008-aes-sbox-circuit/shots/fancify/aes103-joint-plane-orientations/SHOT.md:35267b2fd17a03678b8bbd4148c8a75c622291fd:16": true

@@ -45,7 +45,7 @@ Read https://github.com/few-shots/few-shots/blob/main/skills/take-a-shot/SKILL.m
 | [p004 · 七边形的香农容量](problems/p004-shannon-capacity-c7)<br>Shannon capacity of the 7-cycle | 点数（↑ 越大越好）<br>points, ↑ higher is better | 134753 | — | — | 0 | — |
 | [p005 · 8 维帽集](problems/p005-cap-set-8d)<br>Cap set in dimension 8 | 点数（↑ 越大越好）<br>points, ↑ higher is better | 512 | — | — | 0 | — |
 | [p006 · 长度 100 的低自相关二元序列](problems/p006-labs-100)<br>Low autocorrelation binary sequence of length 100 | 能量（↓ 越小越好）<br>energy, ↓ lower is better | 578 | — | — | 0 | — |
-| [p007 · 汤姆孙问题（N = 960）](problems/p007-thomson-problem)<br>Thomson problem for 960 points | 库仑能量（↓ 越小越好）<br>Coulomb energy, ↓ lower is better | 444368.4373479895 | 444368.4040805305 | [@Abreto](https://github.com/few-shots/few-shots/pull/15) | 1 | −33267459/1000000000 单位（−0.0%） |
+| [p007 · 汤姆孙问题（N = 960）](problems/p007-thomson-problem)<br>Thomson problem for 960 points | 库仑能量（↓ 越小越好）<br>Coulomb energy, ↓ lower is better | 444368.4373479895 | 444368.3924061973 | [@Ronnie2025](https://github.com/few-shots/few-shots/pull/17) | 2 | −224708961/5000000000 单位（−0.0%） |
 | [p008 · AES S 盒最小电路](problems/p008-aes-sbox-circuit)<br>Smallest circuit for the AES S-box | 门数（↓ 越小越好）<br>gates, ↓ lower is better | 106 | 103 | [@fancify](https://github.com/few-shots/few-shots/pull/16) | 3 | −3 门（−2.8%） |
 | [p009 · 作业车间调度 ta41](problems/p009-job-shop-ta41)<br>Job-shop scheduling, Taillard ta41 | 完工时间（↓ 越小越好）<br>makespan, ↓ lower is better | 2006 | — | — | 0 | — |
 | [p010 · 蒙娜丽莎 10 万城市旅行商问题](problems/p010-mona-lisa-tsp)<br>Mona Lisa 100,000-city TSP | 路线长度（↓ 越小越好）<br>tour length, ↓ lower is better | 5757191 | — | — | 0 | — |
