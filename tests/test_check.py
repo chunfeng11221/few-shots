@@ -14,13 +14,14 @@ from helpers import BASELINE_12, ERDOS_TURAN_12, OPTIMAL_12, ROOT, SANDBOX, F, T
 
 class ShotMdTest(unittest.TestCase):
     def test_template_parses_and_has_only_required_fields(self):
+        # 模板只列新提交的必填字段；agent、models 留空，不填就过不了检查
         text = (ROOT / "templates" / "SHOT.md").read_text(encoding="utf-8")
         shot = F.parse_shot_md(text)
         self.assertEqual(shot.login, "your-github-login")
         self.assertEqual(shot.builds_on, ())
         front = text.split("+++")[1]
         keys = [ln.split("=")[0].strip() for ln in front.splitlines() if "=" in ln and not ln.startswith("#")]
-        self.assertEqual(keys, list(F.SHOT_REQUIRED))
+        self.assertEqual(keys, list(F.SUBMIT_REQUIRED))
 
     def test_valid(self):
         shot = F.parse_shot_md(shot_md("alice", "22/7", builds_on=("bob/x-1",)))
@@ -62,14 +63,24 @@ class ShotMdTest(unittest.TestCase):
         self.assertShotError(good + "\n## 思路\n\n再来一次\n", "重复的二级标题")
 
     def test_only_login_builds_on_and_claimed_score_are_required(self):
-        # 纪录记在 GitHub 账号名下；模型、agent、token 用量和机构可以不写或留空
+        # 解析时（已合并的旧 shot）只要求这三项；新提交另外要 agent 和 model，见 test_score
         good = shot_md("alice", "85")
-        for line in ('models = ["model-x"]\n', 'agent = "test-agent"\n', "tokens_estimate = 1000\n", 'affiliation = "个人"\n'):
+        for line in ('models = ["model-x"]\n', 'agent = "claude-code"\n', 'model = "model-main"\n', "tokens_estimate = 1000\n", 'affiliation = "个人"\n'):
             good = good.replace(line, "")
         shot = F.parse_shot_md(good)
         self.assertEqual((shot.models, shot.agent, shot.tokens_estimate, shot.affiliation), ((), "", 0, ""))
         blank = shot_md("alice", "85", models=()).replace('affiliation = "个人"', 'affiliation = ""')
         self.assertEqual(F.parse_shot_md(blank).affiliation, "")
+
+    def test_agent_ids_are_listed_in_agents_md(self):
+        doc = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+        for i, name in F.AGENT_CHOICES:
+            self.assertIn(f"`{i}` ({name})", doc)
+        self.assertEqual(F.agent_choice("Claude Code"), ("claude-code", "Claude Code"))
+        self.assertEqual(F.agent_choice("OTHER： My Harness"), ("other", "My Harness"))
+        self.assertEqual(F.agent_choice("none"), ("none", "none"))
+        self.assertIsNone(F.agent_choice("Codex with subagents"))
+        self.assertIsNone(F.agent_choice("other:"))
 
     def test_errors_do_not_echo_participant_text(self):
         # 红队用例：重复的二级标题和未知字段名不能原样出现在错误信息（进而出现在机器人评论）里

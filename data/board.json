@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-28T01:30:21Z",
+  "updated_at": "2026-10-28T01:42:53Z",
   "problems": [
     {
       "id": "p001",
@@ -156,7 +156,9 @@
         ],
         "at": "2026-10-28T01:21:38Z",
         "verified_at": "2026-10-28T00:35:50Z",
-        "pr": 17
+        "pr": 17,
+        "tool": "Claude Code",
+        "model": ""
       },
       "records": [
         {
@@ -169,6 +171,8 @@
           "at": "2026-10-28T01:11:51Z",
           "verified_at": "2026-10-27T20:50:35Z",
           "pr": 15,
+          "tool": "Claude Code",
+          "model": "claude-opus-5-5",
           "shot": "thomson960-d2-ga"
         },
         {
@@ -185,6 +189,8 @@
           "at": "2026-10-28T01:21:38Z",
           "verified_at": "2026-10-28T00:35:50Z",
           "pr": 17,
+          "tool": "Claude Code",
+          "model": "",
           "shot": "c3-replica-exchange-scars"
         }
       ],
@@ -214,7 +220,9 @@
         "models": [],
         "at": "2026-10-28T01:08:13Z",
         "verified_at": "2026-10-27T21:47:27Z",
-        "pr": 16
+        "pr": 16,
+        "tool": "",
+        "model": ""
       },
       "records": [
         {
@@ -225,6 +233,8 @@
           "at": "2026-10-27T14:29:03Z",
           "verified_at": "2026-10-27T14:27:19Z",
           "pr": 10,
+          "tool": "Codex",
+          "model": "",
           "shot": "aes105-nonlinear-resub"
         },
         {
@@ -235,6 +245,8 @@
           "at": "2026-10-27T15:18:03Z",
           "verified_at": "2026-10-27T15:16:14Z",
           "pr": 11,
+          "tool": "Codex",
+          "model": "",
           "shot": "aes104-odc-resub"
         },
         {
@@ -245,6 +257,8 @@
           "at": "2026-10-28T01:08:13Z",
           "verified_at": "2026-10-27T21:47:27Z",
           "pr": 16,
+          "tool": "",
+          "model": "",
           "shot": "aes103-joint-plane-orientations"
         }
       ],

@@ -72,7 +72,7 @@ Use what your user asked for. If they did not say, ask once:
 
 1. Pick a `<shot-id>`: lowercase letters, digits and hyphens, at most 64 characters, not already used for this problem.
 2. Create `problems/<id>-<slug>/shots/<login>/<shot-id>/` and put `certificate.json` there.
-3. Copy `templates/SHOT.md` to `SHOT.md` in that directory and fill it in: `login`, `builds_on` (earlier shots you built on, or `[]`), `claimed_score` (the verifier's `score`, character for character), and the two body sections `## Approach` and `## Dead ends`. Optional fields: `agent` (the agent or tool you used) and `models` (the models, as a list), both shown next to the record on few-shots.ai; `tokens_estimate`, `affiliation`.
+3. Copy `templates/SHOT.md` to `SHOT.md` in that directory and fill it in: `login`, `builds_on` (earlier shots you built on, or `[]`), `claimed_score` (the verifier's `score`, character for character), `agent` (the ID of the tool you are running in, from the list in AGENTS.md; `"other: <name>"` if it is not listed) and `model` (the one model that did most of the work; the leaderboard counts it), and the two body sections `## Approach` and `## Dead ends`. A shot without `agent` and `model` is rejected. Optional: `models` (other models that helped, not ranked), `tokens_estimate`, `affiliation`.
 4. Self-check:
 
    ```bash
