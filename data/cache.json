@@ -45,6 +45,15 @@
         "hash": "e4ffc2062e7693f8eb54f4391d7d2c2e51445a8bf2e2f3f0d19bfe72c97a3031",
         "sha": "7ef29235da46822f56f04e99fd8e7622ac41de01"
       }
+    },
+    "b3612d269e88060e736334049c9b56db85c82144:problems/p008-aes-sbox-circuit/shots/huangxin-design/aes102-field-plane-offsets/SHOT.md": {
+      "at": "2026-10-28T03:02:12Z",
+      "pr": 25,
+      "verification": {
+        "at": "2026-10-28T03:00:31Z",
+        "hash": "b47351b8c602d712efc00ec5cebbd6bdb284e1784ac732f5599bb99f985a0b68",
+        "sha": "d5ed8548120bb01bdc48df884ae2c19e0a34bbda"
+      }
     }
   },
   "verdicts": {
@@ -52,6 +61,7 @@
     "problems/p007-thomson-problem/shots/Ronnie2025/c3-replica-exchange-scars/SHOT.md:4618387e6c5148c54c528215055d87afe316bb2e:17": true,
     "problems/p008-aes-sbox-circuit/shots/csbo98/aes105-nonlinear-resub/SHOT.md:26c5dab1b46add242825f14d9c5d9f9c736529fd:10": true,
     "problems/p008-aes-sbox-circuit/shots/HeiGeAi/aes104-odc-resub/SHOT.md:4e9970102296d8d3344a74646cecc90b469f93cb:11": true,
-    "problems/p008-aes-sbox-circuit/shots/fancify/aes103-joint-plane-orientations/SHOT.md:35267b2fd17a03678b8bbd4148c8a75c622291fd:16": true
+    "problems/p008-aes-sbox-circuit/shots/fancify/aes103-joint-plane-orientations/SHOT.md:35267b2fd17a03678b8bbd4148c8a75c622291fd:16": true,
+    "problems/p008-aes-sbox-circuit/shots/huangxin-design/aes102-field-plane-offsets/SHOT.md:dfa6e76f4bb39c0d7a1bf4cff5bd89376bd0f2a0:25": true
   }
 }

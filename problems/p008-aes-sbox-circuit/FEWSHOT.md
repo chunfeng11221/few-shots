@@ -17,6 +17,7 @@
 | 1 | csbo98/aes105-nonlinear-resub | 105 | 106 → 105 | — |
 | 2 | HeiGeAi/aes104-odc-resub | 104 | 105 → 104 | csbo98/aes105-nonlinear-resub |
 | 3 | fancify/aes103-joint-plane-orientations | 103 | 104 → 103 | HeiGeAi/aes104-odc-resub |
+| 4 | huangxin-design/aes102-field-plane-offsets | 102 | 103 → 102 | fancify/aes103-joint-plane-orientations |
 
 ## 各次突破的思路 · Approaches
 
@@ -58,6 +59,18 @@
 >
 > The saving requires optimizing the field change and the independent product-…（已截断 · truncated）
 
+### #4 huangxin-design/aes102-field-plane-offsets（103 → 102）
+
+- 基于 · Builds on：fancify/aes103-joint-plane-orientations
+
+参与者原文摘录（思路） · Participant excerpt (approach)：
+
+> Starting from fancify's merged 103-gate certificate, jointly change the AES input field coordinates, the nine quadratic product planes, and the surrounding linear networks. The resulting circuit has 33 AND, 63 XOR and 6 XNOR gates, for a total of 102 gates. Its maximum output depth is 36. The 18-gat…
+>
+> Let L denote the linear part of the AES affine output map, with its constant 0x63 removed. In the standard AES field modulo 0x11b, use the semilinear input change P(x) = 0x1b * x^16. If the original constant-free S-box output is evaluated at P(x), compensate by the linear output map Q = L composed w…
+>
+> For each of the nine norm products a*b, use orientation 0 = (a,b), 1 = (a,a+b), or 2 = (a+b,b), where addition is XOR. In the order of the predecessor's first nine AND gates, the orientations ar…（已截断 · truncated）
+
 ## 死路（哪里走不通） · Dead ends
 
 ### #1 csbo98/aes105-nonlinear-resub
@@ -85,3 +98,11 @@
 > Local observability-based resubstitution from existing 104-gate circuits, including neutral changes and larger replacements, produced alternative 104-gate circuits but no reduction. Separate searches over field changes with fixed product-plane bases, and over product-plane choices at a fixed field r…
 >
 > Early linear-network heuristics missed useful exact prelayer networks, so promising candidates were checked with exact small-helper synthesis and complete interface costs. Small inversion-core searches frequently timed out; those outcomes were not treated as impossibility proofs. The separate mix…（已截断 · truncated）
+
+### #4 huangxin-design/aes102-field-plane-offsets
+
+参与者原文摘录（哪里走不通） · Participant excerpt (dead ends)：
+
+> The first search round performed 1,171,086 local root-rewrite attempts on the two published 103-gate circuits, including equal-size substitutions, temporary increases, and up to three-gate replacements. It did not produce a smaller circuit. A generic synthesis attempt for a 17-gate core with exactly…
+>
+> Randomized product-plane changes at the fixed starting field representation did not find a qualifying five-offset middle map in the tested candidates. Most arbitrary semilinear input transforms also make the outer linear maps too expensive. Counting required non-input functions in the prelinear a…（已截断 · truncated）

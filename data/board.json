@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-28T02:14:59Z",
+  "updated_at": "2026-10-28T03:02:21Z",
   "problems": [
     {
       "id": "p001",
@@ -214,15 +214,15 @@
       "epsilon_mode": "absolute",
       "progress_transform": "linear",
       "current": {
-        "score": "103",
-        "login": "fancify",
-        "agent": "",
+        "score": "102",
+        "login": "huangxin-design",
+        "agent": "codex",
         "models": [],
-        "at": "2026-10-28T01:08:13Z",
-        "verified_at": "2026-10-27T21:47:27Z",
-        "pr": 16,
-        "tool": "",
-        "model": ""
+        "at": "2026-10-28T03:02:12Z",
+        "verified_at": "2026-10-28T03:00:31Z",
+        "pr": 25,
+        "tool": "Codex",
+        "model": "gpt-6"
       },
       "records": [
         {
@@ -260,10 +260,22 @@
           "tool": "",
           "model": "",
           "shot": "aes103-joint-plane-orientations"
+        },
+        {
+          "score": "102",
+          "login": "huangxin-design",
+          "agent": "codex",
+          "models": [],
+          "at": "2026-10-28T03:02:12Z",
+          "verified_at": "2026-10-28T03:00:31Z",
+          "pr": 25,
+          "tool": "Codex",
+          "model": "gpt-6",
+          "shot": "aes102-field-plane-offsets"
         }
       ],
-      "progress": "3",
-      "progress_pct": 2.83
+      "progress": "4",
+      "progress_pct": 3.77
     },
     {
       "id": "p009",
