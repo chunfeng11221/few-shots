@@ -360,9 +360,11 @@ def set_output(name: str, value: str) -> None:
 
 # ---------------------------------------------------------------- SHOT.md
 
-SHOT_FIELDS = ("login", "builds_on", "claimed_score", "agent", "models", "tokens_estimate", "affiliation")
-# 纪录记在 login 这个 GitHub 账号名下；后四个字段可以不写
+SHOT_FIELDS = ("login", "builds_on", "claimed_score", "agent", "model", "models", "tokens_estimate", "affiliation")
+# 纪录记在 login 这个 GitHub 账号名下；model 是这次突破主要出力的那一个模型，models 列其他帮了忙的模型（不进排行）
 SHOT_REQUIRED = ("login", "builds_on", "claimed_score")
+# 新提交还要写明用的工具和主要出力的模型（没用就写 "none"）；已合并的旧 shot 只按 SHOT_REQUIRED 解析，不受影响
+SUBMIT_REQUIRED = SHOT_REQUIRED + ("agent", "model")
 SECTION_IDEA = "思路"
 SECTION_DEAD_ENDS = "哪里走不通"
 # SHOT.md 也可以用英文标题；两种写法等价，同一份里只能用一种
@@ -375,6 +377,7 @@ class Shot:
     login: str
     models: tuple
     agent: str
+    model: str
     tokens_estimate: int
     affiliation: str
     builds_on: tuple
@@ -482,6 +485,7 @@ def parse_shot_md(text: str) -> Shot:
                               "Each item in models must be a single-line string of at most 100 characters"))
                 break
     agent = _opt_str(meta, "agent", 100, errs)
+    model = _opt_str(meta, "model", 100, errs)
     affiliation = _opt_str(meta, "affiliation", 200, errs)
     tokens = meta.get("tokens_estimate", 0)
     if type(tokens) is not int or not 0 <= tokens <= 10**13:
@@ -521,6 +525,7 @@ def parse_shot_md(text: str) -> Shot:
         login=login,
         models=tuple(m.strip() for m in models),
         agent=agent,
+        model=model,
         tokens_estimate=tokens,
         affiliation=affiliation,
         builds_on=tuple(builds_on),
@@ -881,6 +886,10 @@ def evaluate_shot(problem: Problem, shot_dir: Path, expected_login: str,
     try:
         text = read_bytes_limited(shot_dir / "SHOT.md", problem.max_shot_md_bytes).decode("utf-8")
         shot = parse_shot_md(text)
+        if not shot.agent or not shot.model:
+            raise ShotError([bi('要写明 agent（用的 agent 或工具）和 model（这次突破主要出力的那一个模型）；没用就写 "none"',
+                                'state agent (the agent or tool you used) and model (the one model that did most of '
+                                'the work for this breakthrough); write "none" if you used none')])
     except ShotError as e:
         out.update(status="rejected", messages=[bi_prefix("SHOT.md：", "SHOT.md: ", m) for m in e.messages])
         return out

@@ -4,6 +4,8 @@
 login = "your-github-login"            # 纪录记在这个 GitHub 账号名下；必须与目录名、PR 作者完全一致 · the record goes to this account; must match the directory name and the PR author
 builds_on = []                         # 参考了哪些前人的 shot，形如 ["login/shot-id"]；没有就写 [] · earlier shots you used, e.g. ["login/shot-id"]; [] if none
 claimed_score = "0"                    # 必须与验证器输出的 score 完全一致 · must equal the verifier's score exactly
+agent = ""                             # 必填：用的 agent 或工具，显示在纪录旁边；没用就写 "none" · required: the agent or tool you used, shown with the record; "none" if none
+model = ""                             # 必填：这次突破主要出力的模型，只写一个，排行按它算；没用就写 "none" · required: the one model that did most of the work, used for the leaderboard; "none" if none
 +++
 
 ## 思路

@@ -27,7 +27,9 @@
         ],
         "at": "2001-01-01T14:00:00Z",
         "verified_at": null,
-        "pr": 9
+        "pr": 9,
+        "tool": "test-agent",
+        "model": ""
       },
       "records": [
         {
@@ -40,6 +42,8 @@
           "at": "2001-01-01T10:00:00Z",
           "verified_at": null,
           "pr": 3,
+          "tool": "test-agent",
+          "model": "Model A",
           "shot": "first"
         },
         {
@@ -53,6 +57,8 @@
           "at": "2001-01-01T12:00:00Z",
           "verified_at": null,
           "pr": 4,
+          "tool": "test-agent",
+          "model": "",
           "shot": "big"
         },
         {
@@ -65,6 +71,8 @@
           "at": "2001-01-01T13:00:00Z",
           "verified_at": null,
           "pr": 7,
+          "tool": "test-agent",
+          "model": "Model D",
           "shot": "exact"
         },
         {
@@ -78,6 +86,8 @@
           "at": "2001-01-01T14:00:00Z",
           "verified_at": null,
           "pr": 9,
+          "tool": "test-agent",
+          "model": "",
           "shot": "inject"
         }
       ],
@@ -109,7 +119,9 @@
         ],
         "at": "2001-01-03T07:00:00Z",
         "verified_at": null,
-        "pr": 14
+        "pr": 14,
+        "tool": "test-agent",
+        "model": "Model F"
       },
       "records": [
         {
@@ -122,6 +134,8 @@
           "at": "2001-01-02T09:00:00Z",
           "verified_at": null,
           "pr": 2,
+          "tool": "test-agent",
+          "model": "Model A",
           "shot": "one"
         },
         {
@@ -134,6 +148,8 @@
           "at": "2001-01-03T00:00:00Z",
           "verified_at": null,
           "pr": 10,
+          "tool": "test-agent",
+          "model": "Model D",
           "shot": "tie"
         },
         {
@@ -146,6 +162,8 @@
           "at": "2001-01-03T07:00:00Z",
           "verified_at": null,
           "pr": 14,
+          "tool": "test-agent",
+          "model": "Model F",
           "shot": "small"
         }
       ],

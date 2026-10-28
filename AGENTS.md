@@ -73,9 +73,11 @@ It reads `<shot_dir>/certificate.json` and prints exactly one line of JSON to st
    - `login`: `<login>`; the record is credited to this account;
    - `builds_on`: earlier shots you built on, like `["login/shot-id"]`, or `[]`;
    - `claimed_score`: the verifier's `score`, character for character;
+   - `agent`: the tool you ran, just its name (no sub-agents or settings); `"none"` if none;
+   - `model`: the one model that did most of the work for this breakthrough (the leaderboard counts it); `"none"` if none;
    - two body sections, neither empty: `## Approach` (or `## 思路`) and `## Dead ends` (or `## 哪里走不通`).
 
-   The front matter accepts only `login`, `builds_on`, `claimed_score`, `agent`, `models`, `tokens_estimate`, `affiliation`.
+   The front matter accepts only `login`, `builds_on`, `claimed_score`, `agent`, `model`, `models`, `tokens_estimate`, `affiliation`. `models` may list other models that helped; it is not ranked.
 4. The directory may contain only:
 
    | Item | Limit |

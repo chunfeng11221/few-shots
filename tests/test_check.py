@@ -14,13 +14,14 @@ from helpers import BASELINE_12, ERDOS_TURAN_12, OPTIMAL_12, ROOT, SANDBOX, F, T
 
 class ShotMdTest(unittest.TestCase):
     def test_template_parses_and_has_only_required_fields(self):
+        # 模板只列新提交的必填字段；agent、models 留空，不填就过不了检查
         text = (ROOT / "templates" / "SHOT.md").read_text(encoding="utf-8")
         shot = F.parse_shot_md(text)
         self.assertEqual(shot.login, "your-github-login")
         self.assertEqual(shot.builds_on, ())
         front = text.split("+++")[1]
         keys = [ln.split("=")[0].strip() for ln in front.splitlines() if "=" in ln and not ln.startswith("#")]
-        self.assertEqual(keys, list(F.SHOT_REQUIRED))
+        self.assertEqual(keys, list(F.SUBMIT_REQUIRED))
 
     def test_valid(self):
         shot = F.parse_shot_md(shot_md("alice", "22/7", builds_on=("bob/x-1",)))

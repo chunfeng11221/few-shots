@@ -141,6 +141,15 @@ class EvaluateTest(unittest.TestCase):
         self.assertEqual(res["progress"], "1757")
         self.assertRegex(res["canonical_hash"], "^[0-9a-f]{64}$")
 
+    def test_new_submission_must_state_tool_and_main_model(self):
+        for i, (old, new) in enumerate((('model = "model-main"\n', ""), ('agent = "test-agent"\n', 'agent = ""\n'))):
+            d = self.candidate(ERDOS_TURAN_12, sid=f"nomodel{i}")
+            md = d / "SHOT.md"
+            md.write_text(md.read_text(encoding="utf-8").replace(old, new), encoding="utf-8")
+            res = self.evaluate(d)
+            self.assertEqual(res["status"], "rejected", res)
+            self.assertTrue(any("model" in m for m in res["messages"]), res["messages"])
+
     def test_claimed_score_mismatch(self):
         for claimed in ("291", "290.5", "580/2"):
             res = self.evaluate(self.candidate(ERDOS_TURAN_12, claimed=claimed, sid=f"c{len(claimed)}"))
