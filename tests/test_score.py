@@ -142,13 +142,19 @@ class EvaluateTest(unittest.TestCase):
         self.assertRegex(res["canonical_hash"], "^[0-9a-f]{64}$")
 
     def test_new_submission_must_state_tool_and_main_model(self):
-        for i, (old, new) in enumerate((('model = "model-main"\n', ""), ('agent = "test-agent"\n', 'agent = ""\n'))):
+        for i, (old, new) in enumerate((('model = "model-main"\n', ""), ('agent = "claude-code"\n', 'agent = ""\n'),
+                                        ('agent = "claude-code"\n', 'agent = "Codex with subagents"\n'))):
             d = self.candidate(ERDOS_TURAN_12, sid=f"nomodel{i}")
             md = d / "SHOT.md"
             md.write_text(md.read_text(encoding="utf-8").replace(old, new), encoding="utf-8")
             res = self.evaluate(d)
             self.assertEqual(res["status"], "rejected", res)
-            self.assertTrue(any("model" in m for m in res["messages"]), res["messages"])
+            self.assertTrue(any("model" in m or "agent" in m for m in res["messages"]), res["messages"])
+        for agent in ("codex", "Claude Code", "other: My Harness", "none"):
+            d = self.candidate(ERDOS_TURAN_12, sid="ok-" + agent.split(":")[0].replace(" ", "-").lower())
+            md = d / "SHOT.md"
+            md.write_text(md.read_text(encoding="utf-8").replace('agent = "claude-code"', f'agent = "{agent}"'), encoding="utf-8")
+            self.assertEqual(self.evaluate(d)["status"], "breakthrough", agent)
 
     def test_claimed_score_mismatch(self):
         for claimed in ("291", "290.5", "580/2"):

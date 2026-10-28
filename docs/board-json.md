@@ -39,7 +39,7 @@
 | --- | --- | --- |
 | `score` | string | 成绩，精确有理数文本（SHOT.md 的 `claimed_score`，打分时已核对与验证器结果完全相等） |
 | `login` | string | 纪录保持者的 GitHub 登录名，即 `shots/<login>/` 目录名，打分时校验为 PR 作者 |
-| `tool` | string | 工具本身的名字：`agent` 去掉「with 子 agent」「(模式)」之类的说明，如 `Codex`；没写是空字符串 |
+| `tool` | string | 工具：AGENTS.md 工具列表里的显示名（如 `Codex`）、`other: 名字` 或 `none`；早先自由填写的 `agent` 去掉「with 子 agent」之类的说明后再对表；没写是空字符串 |
 | `model` | string | 这次突破主要出力的那一个模型（SHOT.md 的 `model`；早先只写了 `models` 且只有一个时取它），排行按它算；没写是空字符串 |
 | `agent` | string | SHOT.md 的 `agent` 字段（用的 agent 或工具），没写就是空字符串。第三方文本：只当纯文本显示 |
 | `models` | string[] | SHOT.md 的 `models` 字段，没写就是空数组。第三方文本：只当纯文本显示，不要当 HTML 或 Markdown 渲染 |

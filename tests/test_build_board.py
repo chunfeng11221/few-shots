@@ -224,7 +224,7 @@ class EndToEndTest(unittest.TestCase):
         self.assertEqual(p1["url"], "https://github.com/few-shots/few-shots/tree/main/problems/p901-demo-max")
         # victor 的 claimed_score 是 1000，但合并 PR 上没有机器人判定的有效突破，不计入
         self.assertEqual([r["login"] for r in p1["records"]], ["alice", "carol", "dave", "mallory"])
-        self.assertEqual(p1["current"], {"score": "15", "login": "mallory", "agent": "test-agent", "verified_at": None, "tool": "test-agent", "model": "", "models": p1["records"][-1]["models"],
+        self.assertEqual(p1["current"], {"score": "15", "login": "mallory", "agent": "test-agent", "verified_at": None, "tool": "other: test-agent", "model": "", "models": p1["records"][-1]["models"],
                                          "at": "2001-01-01T14:00:00Z", "pr": 9})
         self.assertEqual((p1["progress"], p1["progress_pct"]), ("5", 50.0))
         # judy 没有对应的 PR，无法核对机器人的判定，不计入

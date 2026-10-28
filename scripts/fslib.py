@@ -365,6 +365,33 @@ SHOT_FIELDS = ("login", "builds_on", "claimed_score", "agent", "model", "models"
 SHOT_REQUIRED = ("login", "builds_on", "claimed_score")
 # 新提交还要写明用的工具和主要出力的模型（没用就写 "none"）；已合并的旧 shot 只按 SHOT_REQUIRED 解析，不受影响
 SUBMIT_REQUIRED = SHOT_REQUIRED + ("agent", "model")
+# agent 的取值：从这张表里选一个 ID；表里没有的写 "other: 工具名"，没用工具写 "none"。
+# 分三组：模型厂自己的工具、编程 IDE / 编辑器、通用的开源或第三方 harness。改动时同步 AGENTS.md 里的表（有测试）。
+AGENT_CHOICES = (
+    ("claude-code", "Claude Code"), ("codex", "Codex"), ("gemini-cli", "Gemini CLI"), ("antigravity", "Antigravity"),
+    ("jules", "Jules"), ("kimi-code", "Kimi Code"), ("qwen-code", "Qwen Code"), ("qoder", "Qoder"),
+    ("trae", "TRAE"), ("codebuddy", "CodeBuddy"), ("comate", "Comate"), ("deepseek-harness", "DeepSeek Harness"),
+    ("grok-build", "Grok Build"), ("mistral-vibe", "Mistral Vibe"), ("kiro", "Kiro"), ("github-copilot", "GitHub Copilot"),
+    ("cursor", "Cursor"), ("windsurf", "Windsurf / Devin"), ("zed", "Zed"), ("junie", "Junie"),
+    ("opencode", "OpenCode"), ("cline", "Cline"), ("roo-code", "Roo Code"), ("kilo-code", "Kilo Code"),
+    ("aider", "Aider"), ("goose", "Goose"), ("openhands", "OpenHands"), ("amp", "Amp"),
+    ("droid", "Droid"), ("warp", "Warp"), ("augment", "Augment Code"), ("continue", "Continue"),
+)
+_AGENT_BY_KEY = {k: (i, n) for i, n in AGENT_CHOICES for k in (i, n.lower(), n.lower().replace(" ", "-"))}
+_AGENT_OTHER_RE = re.compile(r"other\s*[:：]\s*(\S.{0,59})", re.I)
+
+
+def agent_choice(value: str) -> tuple[str, str] | None:
+    """agent 字段 → (ID, 显示名)。表里的 ID 或名字（不分大小写）、"none"、"other: 工具名" 之外返回 None。"""
+    v = (value or "").strip()
+    if v.lower() == "none":
+        return ("none", "none")
+    m = _AGENT_OTHER_RE.fullmatch(v)
+    if m:
+        return ("other", m.group(1).strip())
+    return _AGENT_BY_KEY.get(v.lower())
+
+
 SECTION_IDEA = "思路"
 SECTION_DEAD_ENDS = "哪里走不通"
 # SHOT.md 也可以用英文标题；两种写法等价，同一份里只能用一种
@@ -887,9 +914,13 @@ def evaluate_shot(problem: Problem, shot_dir: Path, expected_login: str,
         text = read_bytes_limited(shot_dir / "SHOT.md", problem.max_shot_md_bytes).decode("utf-8")
         shot = parse_shot_md(text)
         if not shot.agent or not shot.model:
-            raise ShotError([bi('要写明 agent（用的 agent 或工具）和 model（这次突破主要出力的那一个模型）；没用就写 "none"',
-                                'state agent (the agent or tool you used) and model (the one model that did most of '
-                                'the work for this breakthrough); write "none" if you used none')])
+            raise ShotError([bi('要写明 agent（用的工具）和 model（这次突破主要出力的那一个模型）；没用就写 "none"',
+                                'state agent (the tool you used) and model (the one model that did most of the work '
+                                'for this breakthrough); write "none" if you used none')])
+        if agent_choice(shot.agent) is None:
+            raise ShotError([bi('agent 要从 AGENTS.md 的工具列表里选一个 ID（如 "claude-code"）；列表里没有就写 "other: 工具名"，没用工具写 "none"',
+                                'agent must be an ID from the tool list in AGENTS.md (such as "claude-code"); if yours is not '
+                                'listed write "other: tool name", or "none"')])
     except ShotError as e:
         out.update(status="rejected", messages=[bi_prefix("SHOT.md：", "SHOT.md: ", m) for m in e.messages])
         return out

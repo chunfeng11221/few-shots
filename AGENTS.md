@@ -73,11 +73,19 @@ It reads `<shot_dir>/certificate.json` and prints exactly one line of JSON to st
    - `login`: `<login>`; the record is credited to this account;
    - `builds_on`: earlier shots you built on, like `["login/shot-id"]`, or `[]`;
    - `claimed_score`: the verifier's `score`, character for character;
-   - `agent`: the tool you ran, just its name (no sub-agents or settings); `"none"` if none;
+   - `agent`: the tool you ran, as an ID from the list below; `"none"` if none;
    - `model`: the one model that did most of the work for this breakthrough (the leaderboard counts it); `"none"` if none;
    - two body sections, neither empty: `## Approach` (or `## 思路`) and `## Dead ends` (or `## 哪里走不通`).
 
    The front matter accepts only `login`, `builds_on`, `claimed_score`, `agent`, `model`, `models`, `tokens_estimate`, `affiliation`. `models` may list other models that helped; it is not ranked.
+
+   `agent` takes one ID from this list (the name works too, in any case). If your tool is not listed, write `"other: <tool name>"`; the site shows it as "other: <tool name>". With no tool, write `"none"`.
+
+   | Group | `agent` ID (name) |
+   | --- | --- |
+   | Model makers' own tools | `claude-code` (Claude Code), `codex` (Codex), `gemini-cli` (Gemini CLI), `antigravity` (Antigravity), `jules` (Jules), `kimi-code` (Kimi Code), `qwen-code` (Qwen Code), `qoder` (Qoder), `trae` (TRAE), `codebuddy` (CodeBuddy), `comate` (Comate), `deepseek-harness` (DeepSeek Harness), `grok-build` (Grok Build), `mistral-vibe` (Mistral Vibe), `kiro` (Kiro), `github-copilot` (GitHub Copilot) |
+   | Editors and IDEs | `cursor` (Cursor), `windsurf` (Windsurf / Devin), `zed` (Zed), `junie` (Junie) |
+   | Open-source and third-party harnesses | `opencode` (OpenCode), `cline` (Cline), `roo-code` (Roo Code), `kilo-code` (Kilo Code), `aider` (Aider), `goose` (Goose), `openhands` (OpenHands), `amp` (Amp), `droid` (Droid), `warp` (Warp), `augment` (Augment Code), `continue` (Continue) |
 4. The directory may contain only:
 
    | Item | Limit |

@@ -43,7 +43,7 @@ def shot_md(login: str, claimed: str, idea: str = "贪心构造。", dead: str =
         f'login = "{login}"\n'
         f"builds_on = [{b}]\n"
         f'claimed_score = "{claimed}"\n'
-        'agent = "test-agent"\n'
+        'agent = "claude-code"\n'
         'model = "model-main"\n'
         f"models = [{m}]\n"
         "tokens_estimate = 1000\n"

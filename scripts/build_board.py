@@ -329,8 +329,19 @@ TOOL_CUT_RE = re.compile(r"\s+(?:with|using|via|plus|\+|and)\s+|\s*[(（,，;；
 
 
 def tool_name(agent: str) -> str:
-    """排行和纪录旁边显示的工具名：只取工具本身，「Codex with GPT-6-Astra research subagents」→「Codex」。"""
+    """只取工具本身的名字：「Codex with GPT-6-Astra research subagents」→「Codex」。"""
     return TOOL_CUT_RE.split(agent, maxsplit=1)[0].strip()[:40]
+
+
+def tool_label(agent: str) -> str:
+    """纪录和排行用的工具：工具列表里的显示名（如 "Claude Code"）、"other: 名字" 或 "none"；没写是空字符串。
+    早先自由填写的 agent 先去掉「with 子 agent」之类的说明，再到列表里找。"""
+    if not agent:
+        return ""
+    c = F.agent_choice(agent) or F.agent_choice(tool_name(agent))
+    if c is None:
+        return f"other: {tool_name(agent) or agent[:40]}"
+    return f"other: {c[1]}" if c[0] == "other" else c[1]
 
 
 def record_chain(problem: F.Problem, shots: list[Merged]) -> tuple[list[Merged], list[tuple[Merged, str]]]:
@@ -413,7 +424,7 @@ def problem_entry(root: Path, pdir: str, source: Source, cache_in: dict, cache_o
             # 主力模型：写了 model 就用它；早先只写了 models 的，只有一个时就是它，多个时不替参与者猜
             main = clean_text(m.shot.model or "", MAX_MODEL_LEN) or (models[0] if len(models) == 1 else "")
             shots.append(Merged(m.login, m.shot_id, m.shot.claimed_score, models, at, pr, agent, verified,
-                                tool_name(agent), main))
+                                tool_label(agent), main))
         except ShotSkip as err:
             warn(f"跳过 {path}：{err}")
 
