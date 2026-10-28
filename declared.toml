@@ -12,6 +12,10 @@
 model = "gpt-6-astra"
 source = "https://github.com/few-shots/few-shots/pull/17#issuecomment-6458799737"
 
+["p008-aes-sbox-circuit/HeiGeAi/aes104-odc-resub"]
+model = "gpt-6-astra"
+source = "https://github.com/few-shots/few-shots/pull/11#issuecomment-6476204284"
+
 ["p008-aes-sbox-circuit/fancify/aes103-joint-plane-orientations"]
 agent = "other: ChatGPT dot"
 source = "https://github.com/few-shots/few-shots/pull/16#issuecomment-6463372377"
