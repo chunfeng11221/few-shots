@@ -16,7 +16,7 @@ on:
     - cron: "*/15 * * * *"
   push:
     branches: [main]
-    paths: ["problems/**", "!problems/*/FEWSHOT.md"]
+    paths: ["problems/**", "!problems/*/FEWSHOT.md", "!problems/*/shots/*/*/VERIFIED.md"]
   workflow_dispatch:
 
 permissions: {}
@@ -65,7 +65,8 @@ jobs:
           mkdir -p "$out/data"
           cp README.md "$out/README.md"
           cp data/board.json data/cache.json "$out/data/"
-          for f in problems/*/FEWSHOT.md; do
+          for f in problems/*/FEWSHOT.md problems/*/shots/*/*/VERIFIED.md; do
+            [ -f "$f" ] || continue
             mkdir -p "$out/$(dirname "$f")"
             cp "$f" "$out/$f"
           done
@@ -122,12 +123,28 @@ jobs:
               files+=("problems/$name/FEWSHOT.md")
             fi
           done
+          # 验证证书：只放进本 job 检出的 main 上已经存在的 shot 目录（目录名按规则校验），产物里有才复制
+          optional=()
+          for d in problems/*/shots/*/*/; do
+            IFS=/ read -r _ pname _ login shot _ <<< "$d"
+            if [[ "$pname" =~ ^p[0-9]{3,6}-[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$ ]] \
+               && [[ "$login" =~ ^[A-Za-z0-9-]{1,39}$ ]] && [[ "$shot" =~ ^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$ ]] \
+               && [ ! -L "problems/$pname/shots" ] && [ ! -L "problems/$pname/shots/$login" ] && [ ! -L "${d%/}" ]; then
+              optional+=("problems/$pname/shots/$login/$shot/VERIFIED.md")
+            fi
+          done
           for f in "${files[@]}"; do
             if [ ! -f "$src/$f" ] || [ -L "$src/$f" ]; then
               echo "产物缺少 $f" >&2
               exit 1
             fi
             cp "$src/$f" "$f"
+          done
+          for f in "${optional[@]}"; do
+            if [ -f "$src/$f" ] && [ ! -L "$src/$f" ] && [ ! -L "$f" ]; then
+              cp "$src/$f" "$f"
+              files+=("$f")
+            fi
           done
           git add -- "${files[@]}"
           if git diff --cached --quiet; then
@@ -136,7 +153,7 @@ jobs:
           fi
           git -c user.name="github-actions[bot]" \
               -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-              commit -m "board: 更新记分牌与 FEWSHOT.md"
+              commit -m "board: 更新记分牌、FEWSHOT.md 与验证证书"
           umask 077
           key="$RUNNER_TEMP/deploy_key"
           known="$RUNNER_TEMP/known_hosts"

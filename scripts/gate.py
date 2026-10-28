@@ -114,7 +114,9 @@ def classify_pr_files(files: list, author: str, base_root: Path) -> tuple[Target
         if not F.SHOT_ID_RE.fullmatch(sid):
             errs.append(bi(f"shot-id 不合规：{_show(sid)}（只能用小写字母、数字、连字符，最长 64）",
                               f"Invalid shot-id: {_show(sid)} (lowercase letters, digits and hyphens only, at most 64)"))
-        if not F.FILE_NAME_RE.fullmatch(fname):
+        if fname.lower() in F.RESERVED_FILES:
+            errs.append(bi(*F.RESERVED_TEXT))
+        elif not F.FILE_NAME_RE.fullmatch(fname):
             errs.append(bi(f"文件名不允许：{_show(fname)}（只允许字母数字开头的 .md/.json/.txt/.csv，不允许隐藏文件）",
                               f"File name not allowed: {_show(fname)} (only .md/.json/.txt/.csv names that start "
                               "with a letter or digit; no hidden files)"))

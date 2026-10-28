@@ -157,8 +157,16 @@ class BoardWorkflowTest(unittest.TestCase):
         self.assertIn("needs: build", commit)
         # 有写权限的 job 只运行读暂停开关的脚本，不解析第三方数据
         self.assertEqual(re.findall(r"python3 -I (\S+)", commit), ["scripts/control.py"])
-        for bad in ("build_board", "tools/fewshot", "/shots", "/SHOT.md", "cat ", "jq"):
+        for bad in ("build_board", "tools/fewshot", "/SHOT.md", "certificate.json", "cat ", "jq"):
             self.assertNotIn(bad, commit)
+        # 唯一碰到 shots/ 的地方：往 main 上已有、目录名校验过、不是符号链接的 shot 目录里放 VERIFIED.md（产物里有才复制）
+        shot_lines = [ln.strip() for ln in commit.splitlines() if "/shots" in ln]
+        self.assertEqual(shot_lines, [
+            "for d in problems/*/shots/*/*/; do",
+            '&& [ ! -L "problems/$pname/shots" ] && [ ! -L "problems/$pname/shots/$login" ] && [ ! -L "${d%/}" ]; then',
+            'optional+=("problems/$pname/shots/$login/$shot/VERIFIED.md")',
+        ])
+        self.assertIn('if [ -f "$src/$f" ] && [ ! -L "$src/$f" ] && [ ! -L "$f" ]; then', commit)
         self.assertIn("git push git@github.com:few-shots/few-shots.git HEAD:main", commit)
         self.assertIn("StrictHostKeyChecking=yes", commit)
 
@@ -181,7 +189,7 @@ class BoardWorkflowTest(unittest.TestCase):
     def test_triggers(self):
         on = re.search(r"^on:\n(.*?)^\S", self.text, re.S | re.M).group(1)
         self.assertIn("schedule:", on)
-        self.assertIn('paths: ["problems/**", "!problems/*/FEWSHOT.md"]', on)
+        self.assertIn('paths: ["problems/**", "!problems/*/FEWSHOT.md", "!problems/*/shots/*/*/VERIFIED.md"]', on)
         self.assertIn("workflow_dispatch:", on)
 
     def test_commit_copies_fixed_paths(self):

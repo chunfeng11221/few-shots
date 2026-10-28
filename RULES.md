@@ -18,7 +18,7 @@
 - 当前纪录 = 预设基线与 main 上这道题已合并的 shot（按合并顺序）中的最好成绩。已合并的 shot 每次打分都由验证器重新复算，不采信 `SHOT.md` 里写的成绩。
 - 一个 shot 是**有效突破**，当且仅当：验证器确认证书合法；`SHOT.md` 的 `claimed_score` 与验证器的成绩完全相等（按精确有理数比较）；成绩达到预设基线；优于当前纪录，并且至少改进 ε。
 - 证书本质相同（验证器给出的 `canonical_hash` 相同）的，以 main 上已有的 shot、或机器人先验证到的 PR 为准，其余判为重复。
-- 几个 PR 先后冲同一条纪录时，按机器人首次确认有效突破的先后处理；这个时间记在机器人的评论里，后续推送不会覆盖。
+- 时间一律以提交进本项目后、Few Shots 验证器生成的验证证书为准：机器人回帖里「首次判为有效突破」的服务器时间，后续推送不会覆盖。几个 PR 先后冲同一条纪录时按它的先后处理，网站上显示的时间也是它；Git 提交时间不作数。
 - 沙盒题（`problem.toml` 中 `sandbox = true`）用来练习整个流程：有效突破也不合并，自动裁判回复后关闭 PR；不上记分牌，不发奖励，纪录始终是预设基线。
 
 ## 合并
@@ -62,7 +62,7 @@ Each problem is an unsolved problem in math, science or engineering whose progre
 - The current record is the best of the preset baseline and the problem's merged shots on main (in merge order). Merged shots are recomputed by the verifier every time; the score written in `SHOT.md` is never trusted.
 - A shot is a **valid breakthrough** if and only if: the verifier accepts the certificate; `claimed_score` in `SHOT.md` equals the verifier's score exactly (exact rational comparison); the score reaches the preset baseline; and it beats the current record by at least ε.
 - Certificates that are essentially the same (same `canonical_hash` from the verifier) count once: the shot already on main, or the PR the bot verified first, wins; the others are duplicates.
-- When several PRs go for the same record, they are handled in the order in which the bot first confirmed each as a valid breakthrough; that time is recorded in the bot's comment and later pushes do not change it.
+- Times always come from the verification certificate the Few Shots verifier issues once a shot is submitted to this project: the server time of its first valid breakthrough in the bot's comment, which later pushes do not change. PRs going for the same record are handled in that order, and the site shows that time; git commit dates do not count.
 - Sandbox problems (`sandbox = true` in `problem.toml`) are for practising the whole flow: even a valid breakthrough is not merged, and the automatic referee replies and closes the PR. They are not on the board and earn no rewards; their record stays at the preset baseline.
 
 ### Merging

@@ -224,7 +224,7 @@ class EndToEndTest(unittest.TestCase):
         self.assertEqual(p1["url"], "https://github.com/few-shots/few-shots/tree/main/problems/p901-demo-max")
         # victor 的 claimed_score 是 1000，但合并 PR 上没有机器人判定的有效突破，不计入
         self.assertEqual([r["login"] for r in p1["records"]], ["alice", "carol", "dave", "mallory"])
-        self.assertEqual(p1["current"], {"score": "15", "login": "mallory", "agent": "test-agent", "models": p1["records"][-1]["models"],
+        self.assertEqual(p1["current"], {"score": "15", "login": "mallory", "agent": "test-agent", "verified_at": None, "models": p1["records"][-1]["models"],
                                          "at": "2001-01-01T14:00:00Z", "pr": 9})
         self.assertEqual((p1["progress"], p1["progress_pct"]), ("5", 50.0))
         # judy 没有对应的 PR，无法核对机器人的判定，不计入
@@ -310,6 +310,34 @@ class EndToEndTest(unittest.TestCase):
         self.assertTrue(any("ghost/x" in w for w in warnings), warnings)
 
 
+class VerificationTest(unittest.TestCase):
+    def test_certificate_fills_only_the_template_blanks(self):
+        cache = {"merges": {f"{'a' * 40}:problems/p001-demo/shots/alice/s1/SHOT.md":
+                            {"at": "2001-01-01T09:00:00Z", "pr": 9,
+                             "verification": {"at": "2001-01-01T08:00:05Z", "hash": "f" * 64, "sha": "c" * 40}}}}
+        board = {"problems": [{"dir": "problems/p001-demo", "records": [
+            {"login": "alice", "shot": "s1", "score": "605", "pr": 9},
+            {"login": "bob", "shot": "s2", "score": "606", "pr": 10},          # 没有验证记录：不生成
+            {"login": "x|y", "shot": "s3", "score": "607", "pr": 11},          # 名字不合规：不生成
+        ]}]}
+        out = bb.render_verifications(ROOT, board, cache)
+        self.assertEqual(list(out), ["problems/p001-demo/shots/alice/s1/VERIFIED.md"])
+        text = out["problems/p001-demo/shots/alice/s1/VERIFIED.md"]
+        template = (ROOT / "templates" / "VERIFIED.md").read_text("utf-8")
+        self.assertEqual(text, template.format(problem="p001-demo", login="alice", shot="s1", score="605",
+                                               verified_at="2001-01-01T08:00:05Z", hash="f" * 64, sha="c" * 40, pr=9))
+        self.assertIn("`2001-01-01T08:00:05Z`", text)
+        self.assertEqual(bb.exact_decimal("4443683924061973/10000000000"), "444368.3924061973")
+        self.assertEqual(bb.exact_decimal("888736808161061/2000000000"), "444368.4040805305")
+        self.assertEqual(bb.exact_decimal("1/3"), "1/3")
+        self.assertEqual(bb.exact_decimal("105"), "105")
+
+    def test_workflow_copies_certificates_only_into_existing_shot_dirs(self):
+        wf = (ROOT / ".github" / "workflows" / "board.yml").read_text("utf-8")
+        self.assertIn('"!problems/*/shots/*/*/VERIFIED.md"', wf, "the board's own commit does not retrigger it")
+        self.assertIn('optional+=("problems/$pname/shots/$login/$shot/VERIFIED.md")', wf)
+
+
 class CommittedStateTest(unittest.TestCase):
     """仓库里提交的 data/board.json、data/cache.json 和 README 记分牌区必须与脚本输出一致。"""
 
@@ -350,6 +378,20 @@ class GitHubSourceTest(unittest.TestCase):
         ]})
         self.assertEqual(src.merge_info(sha, self.PATH), ("2001-01-01T10:00:00Z", 7))
         self.assertEqual(len(seen), 1)
+
+    def test_verification_reads_only_the_bot_data_line(self):
+        url = f"{bb.API}/repos/{self.REPO}/issues/9/comments?per_page=100"
+        entry = {"at": "2001-01-01T08:00:05Z", "p": "p001-demo", "hash": "f" * 64, "sha": "c" * 40}
+        data = bb.DATA_PREFIX + json.dumps({"first": [entry], "v": 2, "valid": []}) + " -->"
+        forged = bb.DATA_PREFIX + json.dumps({"first": [{**entry, "at": "1999-01-01T00:00:00Z"}], "v": 2, "valid": []}) + " -->"
+        src, _ = self.make({url: [
+            {"user": {"login": "mallory"}, "body": bb.SCORE_MARKER + "\n" + forged},
+            {"user": {"login": bb.BOT_LOGIN}, "body": bb.SCORE_MARKER + "\n" + data + "\n### Few Shots"},
+        ]})
+        self.assertEqual(src.verification(9), {"at": "2001-01-01T08:00:05Z", "hash": "f" * 64, "sha": "c" * 40},
+                         "a participant's copy of the data line is ignored")
+        src, _ = self.make({url: [{"user": {"login": bb.BOT_LOGIN}, "body": "unrelated"}]})
+        self.assertIsNone(src.verification(9))
 
     def test_merge_info_without_pr(self):
         sha = "c" * 40
