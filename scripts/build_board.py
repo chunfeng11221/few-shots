@@ -25,6 +25,7 @@ import os
 import re
 import subprocess
 import sys
+import tomllib
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -344,6 +345,36 @@ def tool_label(agent: str) -> str:
     return f"other: {c[1]}" if c[0] == "other" else c[1]
 
 
+DECLARED = "declared.toml"
+DECLARED_KEY_RE = re.compile(r"^(p[0-9]{3,6}-[a-z0-9-]+)/([A-Za-z0-9-]{1,39})/([a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?)$")
+DECLARED_SOURCE_RE = re.compile(r"^https://github\.com/few-shots/few-shots/pull/[0-9]{1,7}#issuecomment-[0-9]{1,20}$")
+
+
+def load_declared(root: Path, warn: Warn) -> dict[str, dict]:
+    """裁判组维护的补充声明：已合并的 shot 当初没写的工具（agent）和主力模型（model）。SHOT.md 合并后不能再改，
+    所以作者在原 PR 里回复，裁判照录到 declared.toml，每条带回复的链接。只补 SHOT.md 里没写的，不覆盖。"""
+    try:
+        data = tomllib.loads((root / DECLARED).read_text("utf-8"))
+    except FileNotFoundError:
+        return {}
+    except (tomllib.TOMLDecodeError, UnicodeDecodeError):
+        warn(f"{DECLARED} 无法解析，本次不用")
+        return {}
+    out: dict[str, dict] = {}
+    for key, v in data.items():
+        if not (DECLARED_KEY_RE.fullmatch(key) and isinstance(v, dict) and DECLARED_SOURCE_RE.fullmatch(str(v.get("source", "")))):
+            warn(f"{DECLARED} 里有一条格式不对，跳过")
+            continue
+        agent = v.get("agent", "")
+        model = v.get("model", "")
+        if not isinstance(agent, str) or (agent and F.agent_choice(agent) is None) \
+                or not isinstance(model, str) or len(model) > MAX_MODEL_LEN:
+            warn(f"{DECLARED} 里 {key} 的 agent / model 不合规，跳过")
+            continue
+        out[key] = {"agent": agent.strip(), "model": clean_text(model, MAX_MODEL_LEN)}
+    return out
+
+
 def record_chain(problem: F.Problem, shots: list[Merged]) -> tuple[list[Merged], list[tuple[Merged, str]]]:
     """从预设基线出发，按合并顺序逐个判定；有效突破才进纪录链。"""
     records: list[Merged] = []
@@ -406,6 +437,7 @@ def problem_entry(root: Path, pdir: str, source: Source, cache_in: dict, cache_o
     if len(merged) > MAX_SHOTS_PER_PROBLEM:
         raise BoardError(f"shot 数超过上限 {MAX_SHOTS_PER_PROBLEM}")
     blobs = tree_entries(root, ref, f"{F.PROBLEMS_DIR}/{pdir}/shots") if merged else {}
+    declared = load_declared(root, warn) if merged else {}
     shots: list[Merged] = []
     for m in merged:
         path = f"{F.PROBLEMS_DIR}/{pdir}/shots/{m.login}/{m.shot_id}/SHOT.md"
@@ -423,6 +455,10 @@ def problem_entry(root: Path, pdir: str, source: Source, cache_in: dict, cache_o
             agent = clean_text(m.shot.agent or "", MAX_MODEL_LEN)
             # 主力模型：写了 model 就用它；早先只写了 models 的，只有一个时就是它，多个时不替参与者猜
             main = clean_text(m.shot.model or "", MAX_MODEL_LEN) or (models[0] if len(models) == 1 else "")
+            # SHOT.md 没写的，用补充声明里作者后来在 PR 里回复的
+            extra = declared.get(f"{pdir}/{m.login}/{m.shot_id}", {})
+            agent = agent or extra.get("agent", "")
+            main = main or extra.get("model", "")
             shots.append(Merged(m.login, m.shot_id, m.shot.claimed_score, models, at, pr, agent, verified,
                                 tool_label(agent), main))
         except ShotSkip as err:

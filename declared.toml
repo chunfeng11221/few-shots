@@ -1,0 +1,9 @@
+# 补充声明：已合并的 shot 当初没写的工具（agent）和主力模型（model）。
+# SHOT.md 合并后不能再改，所以作者在原 PR 里回复，裁判照录到这里，每条带上那条回复的链接（source）。
+# 只补 SHOT.md 里没写的，不覆盖。agent 用 AGENTS.md 工具列表里的 ID，或 "other: 工具名"。只有裁判组能改这个文件。
+#
+# 格式：
+# ["<题目目录>/<GitHub 账号>/<shot-id>"]
+# agent = "codex"
+# model = "model-name"
+# source = "https://github.com/few-shots/few-shots/pull/<PR 号>#issuecomment-<评论号>"

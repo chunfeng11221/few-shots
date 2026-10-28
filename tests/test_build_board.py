@@ -345,6 +345,26 @@ class ToolModelTest(unittest.TestCase):
             self.assertEqual(bb.tool_name(agent), tool)
 
 
+class DeclaredTest(unittest.TestCase):
+    def test_declared_fills_only_what_shot_md_left_out_and_needs_a_source(self):
+        root = Path(tempfile.mkdtemp(prefix="fs-declared-"))
+        ok = "https://github.com/few-shots/few-shots/pull/10#issuecomment-123"
+        (root / "declared.toml").write_text(
+            f'["p008-aes-sbox-circuit/csbo98/aes105-x"]\nagent = "codex"\nmodel = "m-1"\nsource = "{ok}"\n'
+            '["p008-aes-sbox-circuit/bob/y"]\nagent = "codex"\nmodel = "m-2"\nsource = "https://evil.example/x"\n'
+            f'["p008-aes-sbox-circuit/eve/z"]\nagent = "made-up-tool"\nmodel = "m-3"\nsource = "{ok}"\n', "utf-8")
+        warnings: list[str] = []
+        got = bb.load_declared(root, warnings.append)
+        self.assertEqual(got, {"p008-aes-sbox-circuit/csbo98/aes105-x": {"agent": "codex", "model": "m-1"}})
+        self.assertEqual(len(warnings), 2)
+        self.assertEqual(bb.load_declared(Path(tempfile.mkdtemp()), warnings.append), {})
+
+    def test_committed_declared_file_parses(self):
+        warnings: list[str] = []
+        bb.load_declared(ROOT, warnings.append)
+        self.assertEqual(warnings, [])
+
+
 class CommittedStateTest(unittest.TestCase):
     """仓库里提交的 data/board.json、data/cache.json 和 README 记分牌区必须与脚本输出一致。"""
 

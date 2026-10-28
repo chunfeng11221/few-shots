@@ -189,7 +189,7 @@ class BoardWorkflowTest(unittest.TestCase):
     def test_triggers(self):
         on = re.search(r"^on:\n(.*?)^\S", self.text, re.S | re.M).group(1)
         self.assertIn("schedule:", on)
-        self.assertIn('paths: ["problems/**", "!problems/*/FEWSHOT.md", "!problems/*/shots/*/*/VERIFIED.md"]', on)
+        self.assertIn('paths: ["problems/**", "!problems/*/FEWSHOT.md", "!problems/*/shots/*/*/VERIFIED.md", "declared.toml"]', on)
         self.assertIn("workflow_dispatch:", on)
 
     def test_commit_copies_fixed_paths(self):
