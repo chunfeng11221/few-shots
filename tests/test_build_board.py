@@ -224,7 +224,7 @@ class EndToEndTest(unittest.TestCase):
         self.assertEqual(p1["url"], "https://github.com/few-shots/few-shots/tree/main/problems/p901-demo-max")
         # victor 的 claimed_score 是 1000，但合并 PR 上没有机器人判定的有效突破，不计入
         self.assertEqual([r["login"] for r in p1["records"]], ["alice", "carol", "dave", "mallory"])
-        self.assertEqual(p1["current"], {"score": "15", "login": "mallory", "agent": "test-agent", "verified_at": None, "tool": "other: test-agent", "model": "", "models": p1["records"][-1]["models"],
+        self.assertEqual(p1["current"], {"score": "15", "login": "mallory", "agent": "test-agent", "verified_at": None, "tool": "other: test-agent", "model": "", "model_incomplete": False, "models": p1["records"][-1]["models"],
                                          "at": "2001-01-01T14:00:00Z", "pr": 9})
         self.assertEqual((p1["progress"], p1["progress_pct"]), ("5", 50.0))
         # judy 没有对应的 PR，无法核对机器人的判定，不计入
@@ -343,6 +343,14 @@ class ToolModelTest(unittest.TestCase):
         for agent, tool in (("Codex with GPT-6-Astra research subagents", "Codex"), ("Claude Code", "Claude Code"),
                             ("Cursor (agent mode)", "Cursor"), ("Claude Code + MCP", "Claude Code"), ("", "")):
             self.assertEqual(bb.tool_name(agent), tool)
+
+
+class ModelNameTest(unittest.TestCase):
+    def test_family_names_are_incomplete(self):
+        for m in ("gpt-6", "GPT 6", "claude", "claude-opus", "gemini-3", "deepseek-v4", "kimi"):
+            self.assertTrue(F.model_incomplete(m), m)
+        for m in ("gpt-6-astra", "gpt-6-sol", "gpt-6-luna", "claude-opus-5-5", "gemini-3-pro", "deepseek-v4-pro", "none", ""):
+            self.assertFalse(F.model_incomplete(m), m)
 
 
 class DeclaredTest(unittest.TestCase):

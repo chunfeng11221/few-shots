@@ -392,6 +392,18 @@ def agent_choice(value: str) -> tuple[str, str] | None:
     return _AGENT_BY_KEY.get(v.lower())
 
 
+# model 要写完整型号（带小版本号），只写系列名的不算：如 gpt-6 有 sol、luna、astra 几个型号，要写 gpt-6-astra
+_INCOMPLETE_MODEL_RE = re.compile(
+    r"(gpt|o|claude|claude-(opus|sonnet|haiku|fable)|gemini|gemini-[0-9]+(\.[0-9]+)?|grok|deepseek|deepseek-v[0-9]+(\.[0-9]+)?"
+    r"|qwen|kimi|glm|minimax|mistral|llama|gpt-6(\.0)?)", re.I)
+
+
+def model_incomplete(value: str) -> bool:
+    """只写了模型系列、没写具体型号（"gpt-6"、"claude-opus"、"gemini-3"）时为 True。"""
+    v = re.sub(r"[\s_]+", "-", (value or "").strip().lower())
+    return bool(v) and v != "none" and _INCOMPLETE_MODEL_RE.fullmatch(v) is not None
+
+
 SECTION_IDEA = "思路"
 SECTION_DEAD_ENDS = "哪里走不通"
 # SHOT.md 也可以用英文标题；两种写法等价，同一份里只能用一种
@@ -917,6 +929,10 @@ def evaluate_shot(problem: Problem, shot_dir: Path, expected_login: str,
             raise ShotError([bi('要写明 agent（用的工具）和 model（这次突破主要出力的那一个模型）；没用就写 "none"',
                                 'state agent (the tool you used) and model (the one model that did most of the work '
                                 'for this breakthrough); write "none" if you used none')])
+        if model_incomplete(shot.model):
+            raise ShotError([bi('model 要写完整型号，带小版本号，如 "gpt-6-astra"、"gpt-6-sol"、"claude-opus-5-5"；只写 "gpt-6" 这样的系列名不行',
+                                'model must be the full model name with its variant, such as "gpt-6-astra", "gpt-6-sol" or '
+                                '"claude-opus-5-5"; a family name like "gpt-6" is not enough')])
         if agent_choice(shot.agent) is None:
             raise ShotError([bi('agent 要从 AGENTS.md 的工具列表里选一个 ID（如 "claude-code"）；列表里没有就写 "other: 工具名"，没用工具写 "none"',
                                 'agent must be an ID from the tool list in AGENTS.md (such as "claude-code"); if yours is not '

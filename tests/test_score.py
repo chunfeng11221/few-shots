@@ -143,7 +143,8 @@ class EvaluateTest(unittest.TestCase):
 
     def test_new_submission_must_state_tool_and_main_model(self):
         for i, (old, new) in enumerate((('model = "model-main"\n', ""), ('agent = "claude-code"\n', 'agent = ""\n'),
-                                        ('agent = "claude-code"\n', 'agent = "Codex with subagents"\n'))):
+                                        ('agent = "claude-code"\n', 'agent = "Codex with subagents"\n'),
+                                        ('model = "model-main"\n', 'model = "gpt-6"\n'), ('model = "model-main"\n', 'model = "Claude Opus"\n'))):
             d = self.candidate(ERDOS_TURAN_12, sid=f"nomodel{i}")
             md = d / "SHOT.md"
             md.write_text(md.read_text(encoding="utf-8").replace(old, new), encoding="utf-8")

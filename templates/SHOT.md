@@ -5,7 +5,7 @@ login = "your-github-login"            # 纪录记在这个 GitHub 账号名下�
 builds_on = []                         # 参考了哪些前人的 shot，形如 ["login/shot-id"]；没有就写 [] · earlier shots you used, e.g. ["login/shot-id"]; [] if none
 claimed_score = "0"                    # 必须与验证器输出的 score 完全一致 · must equal the verifier's score exactly
 agent = ""                             # 必填：从 AGENTS.md 的工具列表里选一个 ID，如 "claude-code"；没有就写 "other: 工具名"；没用写 "none" · required: an ID from the tool list in AGENTS.md; "other: name" if not listed; "none" if none
-model = ""                             # 必填：这次突破主要出力的模型，只写一个，排行按它算；没用就写 "none" · required: the one model that did most of the work, used for the leaderboard; "none" if none
+model = ""                             # 必填：这次突破主要出力的模型，只写一个、写完整型号（如 "gpt-6-astra"，不能只写 "gpt-6"）；没用写 "none" · required: the one main model, full name with variant (e.g. "gpt-6-astra", not "gpt-6"); "none" if none
 +++
 
 ## 思路

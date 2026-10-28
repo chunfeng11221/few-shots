@@ -324,6 +324,7 @@ class Merged:
     verification: dict | None = None      # 验证证书：{at, hash, sha}
     tool: str = ""                        # 工具本身的名字（agent 去掉「with 子 agent……」之类的说明）
     model: str = ""                       # 这次突破主要出力的那一个模型
+    model_incomplete: bool = False        # model 只写了系列名，等作者补完整型号
 
 
 TOOL_CUT_RE = re.compile(r"\s+(?:with|using|via|plus|\+|and)\s+|\s*[(（,，;；/]", re.I)
@@ -368,7 +369,7 @@ def load_declared(root: Path, warn: Warn) -> dict[str, dict]:
         agent = v.get("agent", "")
         model = v.get("model", "")
         if not isinstance(agent, str) or (agent and F.agent_choice(agent) is None) \
-                or not isinstance(model, str) or len(model) > MAX_MODEL_LEN:
+                or not isinstance(model, str) or len(model) > MAX_MODEL_LEN or F.model_incomplete(model):
             warn(f"{DECLARED} 里 {key} 的 agent / model 不合规，跳过")
             continue
         out[key] = {"agent": agent.strip(), "model": clean_text(model, MAX_MODEL_LEN)}
@@ -415,7 +416,7 @@ def shot_json(s: Merged, with_shot: bool) -> dict[str, Any]:
     out: dict[str, Any] = {"score": F.fmt(s.score), "login": s.login, "agent": s.agent, "models": list(s.models),
                            "at": s.at,
                            "verified_at": s.verification["at"] if s.verification else None, "pr": s.pr,
-                           "tool": s.tool, "model": s.model}
+                           "tool": s.tool, "model": s.model, "model_incomplete": s.model_incomplete}
     if with_shot:
         out["shot"] = s.shot_id
     return out
@@ -455,12 +456,17 @@ def problem_entry(root: Path, pdir: str, source: Source, cache_in: dict, cache_o
             agent = clean_text(m.shot.agent or "", MAX_MODEL_LEN)
             # 主力模型：写了 model 就用它；早先只写了 models 的，只有一个时就是它，多个时不替参与者猜
             main = clean_text(m.shot.model or "", MAX_MODEL_LEN) or (models[0] if len(models) == 1 else "")
-            # SHOT.md 没写的，用补充声明里作者后来在 PR 里回复的
+            # 只写了系列名（如 gpt-6）的算没写全：补充声明里有完整型号就用它，没有先照原样显示并标出来
+            vague = main if F.model_incomplete(main) else ""
+            main = "" if vague else main
+            # SHOT.md 没写（或没写全）的，用补充声明里作者后来在 PR 里回复的
             extra = declared.get(f"{pdir}/{m.login}/{m.shot_id}", {})
             agent = agent or extra.get("agent", "")
             main = main or extra.get("model", "")
+            incomplete = not main and bool(vague)
+            main = main or vague
             shots.append(Merged(m.login, m.shot_id, m.shot.claimed_score, models, at, pr, agent, verified,
-                                tool_label(agent), main))
+                                tool_label(agent), main, incomplete))
         except ShotSkip as err:
             warn(f"跳过 {path}：{err}")
 

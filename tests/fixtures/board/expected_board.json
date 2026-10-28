@@ -29,7 +29,8 @@
         "verified_at": null,
         "pr": 9,
         "tool": "other: test-agent",
-        "model": ""
+        "model": "",
+        "model_incomplete": false
       },
       "records": [
         {
@@ -44,6 +45,7 @@
           "pr": 3,
           "tool": "other: test-agent",
           "model": "Model A",
+          "model_incomplete": false,
           "shot": "first"
         },
         {
@@ -59,6 +61,7 @@
           "pr": 4,
           "tool": "other: test-agent",
           "model": "",
+          "model_incomplete": false,
           "shot": "big"
         },
         {
@@ -73,6 +76,7 @@
           "pr": 7,
           "tool": "other: test-agent",
           "model": "Model D",
+          "model_incomplete": false,
           "shot": "exact"
         },
         {
@@ -88,6 +92,7 @@
           "pr": 9,
           "tool": "other: test-agent",
           "model": "",
+          "model_incomplete": false,
           "shot": "inject"
         }
       ],
@@ -121,7 +126,8 @@
         "verified_at": null,
         "pr": 14,
         "tool": "other: test-agent",
-        "model": "Model F"
+        "model": "Model F",
+        "model_incomplete": false
       },
       "records": [
         {
@@ -136,6 +142,7 @@
           "pr": 2,
           "tool": "other: test-agent",
           "model": "Model A",
+          "model_incomplete": false,
           "shot": "one"
         },
         {
@@ -150,6 +157,7 @@
           "pr": 10,
           "tool": "other: test-agent",
           "model": "Model D",
+          "model_incomplete": false,
           "shot": "tie"
         },
         {
@@ -164,6 +172,7 @@
           "pr": 14,
           "tool": "other: test-agent",
           "model": "Model F",
+          "model_incomplete": false,
           "shot": "small"
         }
       ],

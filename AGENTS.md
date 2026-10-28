@@ -74,7 +74,7 @@ It reads `<shot_dir>/certificate.json` and prints exactly one line of JSON to st
    - `builds_on`: earlier shots you built on, like `["login/shot-id"]`, or `[]`;
    - `claimed_score`: the verifier's `score`, character for character;
    - `agent`: the tool you ran, as an ID from the list below; `"none"` if none;
-   - `model`: the one model that did most of the work for this breakthrough (the leaderboard counts it); `"none"` if none;
+   - `model`: the one model that did most of the work for this breakthrough (the leaderboard counts it), as its full name with the variant, like `"gpt-6-astra"` or `"claude-opus-5-5"`; a family name such as `"gpt-6"` is rejected; `"none"` if none;
    - two body sections, neither empty: `## Approach` (or `## 思路`) and `## Dead ends` (or `## 哪里走不通`).
 
    The front matter accepts only `login`, `builds_on`, `claimed_score`, `agent`, `model`, `models`, `tokens_estimate`, `affiliation`. `models` may list other models that helped; it is not ranked.
