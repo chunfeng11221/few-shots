@@ -7,3 +7,7 @@
 # agent = "codex"
 # model = "model-name"
 # source = "https://github.com/few-shots/few-shots/pull/<PR 号>#issuecomment-<评论号>"
+
+["p007-thomson-problem/Ronnie2025/c3-replica-exchange-scars"]
+model = "gpt-6-astra"
+source = "https://github.com/few-shots/few-shots/pull/17#issuecomment-6458799737"
