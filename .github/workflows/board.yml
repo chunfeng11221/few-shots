@@ -8,6 +8,8 @@
 #   board 环境只允许 main 分支使用，全仓库只有这个 job 引用它。
 # - 两个 job 都检出触发时的同一个提交；main 在此期间前进时推送会被拒绝，下一次运行再更新。
 # - 两个 job 都先读暂停开关（scripts/control.py，GitHub API 读 main 上的 control.toml）；暂停或读不到就不更新。
+# - site job 把 main 上的 data/board.json 推到 few-shots/site（网站副本，打不开 GitHub 的网络也能看到纪录），
+#   用 site 环境里另一把只对网站仓库有写权限的部署密钥。
 # - 第三方 action 固定到完整 commit SHA；run: 里没有表达式插值。
 name: board
 
@@ -161,4 +163,53 @@ jobs:
           printf '%s\n' 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl' > "$known"
           GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o UserKnownHostsFile=$known -o StrictHostKeyChecking=yes" \
             git push git@github.com:few-shots/few-shots.git HEAD:main
+          rm -f "$key"
+
+  # 本站副本：有些网络打不开 GitHub，few-shots.ai 先读自己域名下的 /data/board.json。
+  # main 上的 board.json 和 few-shots/site 仓库里的不一样就推过去，Vercel 随即重新部署。
+  # 只复制这一个文件，先确认它是记分牌格式的 JSON；用 site 环境里的部署密钥（只对 few-shots/site 有写权限）。
+  site:
+    needs: [build, commit]
+    if: needs.build.outputs.paused == 'false'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment: site
+    permissions:
+      contents: read
+    steps:
+      - name: 检出 main（包含 commit job 刚推上去的记分牌）
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: 记分牌有变化就推到网站仓库
+        env:
+          SITE_DEPLOY_KEY: ${{ secrets.SITE_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          python3 -I -c 'import json, sys; b = json.load(open("data/board.json", encoding="utf-8")); sys.exit(0 if isinstance(b.get("problems"), list) else 1)'
+          umask 077
+          key="$RUNNER_TEMP/site_key"
+          known="$RUNNER_TEMP/known_hosts"
+          printf '%s\n' "$SITE_DEPLOY_KEY" > "$key"
+          printf '%s\n' 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl' > "$known"
+          export GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o UserKnownHostsFile=$known -o StrictHostKeyChecking=yes"
+          site="$RUNNER_TEMP/site"
+          git clone --depth 1 git@github.com:few-shots/site.git "$site"
+          mkdir -p "$site/data"
+          if [ -L "$site/data" ] || [ -L "$site/data/board.json" ]; then
+            echo "网站仓库里的 data/board.json 是链接，不更新" >&2
+            exit 1
+          fi
+          cp data/board.json "$site/data/board.json"
+          git -C "$site" add -- data/board.json
+          if git -C "$site" diff --cached --quiet; then
+            echo "网站上的记分牌已是最新。"
+          else
+            git -C "$site" -c user.name="github-actions[bot]" \
+                -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+                commit -m "board: 同步记分牌数据"
+            git -C "$site" push origin HEAD:main
+          fi
           rm -f "$key"

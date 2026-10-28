@@ -58,8 +58,8 @@ class CommonWorkflowTest(unittest.TestCase):
             with self.subTest(name):
                 text = read(name)
                 self.assertRegex(text, r"(?m)^permissions: \{\}$")
-                # 全仓库只有 board.yml 的 commit job 引用一个 secret：推送记分牌用的部署密钥
-                expected = ["${{ secrets.BOARD_DEPLOY_KEY }}"] if name == "board.yml" else []
+                # 全仓库只有 board.yml 引用 secret：commit job 推记分牌的部署密钥，site job 推网站副本的部署密钥
+                expected = ["${{ secrets.BOARD_DEPLOY_KEY }}", "${{ secrets.SITE_DEPLOY_KEY }}"] if name == "board.yml" else []
                 self.assertEqual(re.findall(r"\$\{\{\s*secrets\.[^}]*\}\}", text), expected)
                 self.assertNotIn("actions/cache", text)
                 self.assertNotIn("raw.githubusercontent.com", text)
@@ -81,6 +81,7 @@ class CommonWorkflowTest(unittest.TestCase):
         self.assertIn("environment: board", commit)
         self.assertIn("secrets.BOARD_DEPLOY_KEY", commit)
         self.assertNotIn("secrets.", job_section(read("board.yml"), "build"))
+        self.assertNotIn("SITE_DEPLOY_KEY", commit)
 
     def test_no_workflow_runs_pr_code(self):
         for name in ("board.yml", "test.yml"):
@@ -183,7 +184,7 @@ class BoardWorkflowTest(unittest.TestCase):
 
     def test_both_jobs_use_the_same_commit(self):
         refs = re.findall(r"ref: (.*)", self.text)
-        self.assertEqual(refs, ["${{ github.sha }}", "${{ github.sha }}"])
+        self.assertEqual(refs, ["${{ github.sha }}", "${{ github.sha }}", "main"], "site job copies what is on main now")
         self.assertIn("fetch-depth: 0", job_section(self.text, "build"))
 
     def test_triggers(self):
@@ -197,6 +198,18 @@ class BoardWorkflowTest(unittest.TestCase):
         self.assertIn("files=(README.md data/board.json data/cache.json)", commit)
         self.assertIn('files+=("problems/$name/FEWSHOT.md")', commit)
         self.assertIn("^p[0-9]{3,6}-[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$", commit)
+
+
+    def test_site_job_copies_only_board_json_to_the_site(self):
+        site = job_section(self.text, "site")
+        self.assertIn("needs: [build, commit]", site)
+        self.assertIn("environment: site", site)
+        self.assertIn("secrets.SITE_DEPLOY_KEY", site)
+        self.assertNotIn("BOARD_DEPLOY_KEY", site)
+        self.assertIn("git clone --depth 1 git@github.com:few-shots/site.git", site)
+        self.assertIn('cp data/board.json "$site/data/board.json"', site)
+        self.assertIn('git -C "$site" add -- data/board.json', site)
+        self.assertIn("StrictHostKeyChecking=yes", site)
 
 
 class TestWorkflowTest(unittest.TestCase):
