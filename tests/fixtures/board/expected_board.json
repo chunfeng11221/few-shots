@@ -26,6 +26,7 @@
           "Model B"
         ],
         "at": "2001-01-01T14:00:00Z",
+        "verified_at": null,
         "pr": 9
       },
       "records": [
@@ -37,6 +38,7 @@
             "Model A"
           ],
           "at": "2001-01-01T10:00:00Z",
+          "verified_at": null,
           "pr": 3,
           "shot": "first"
         },
@@ -49,6 +51,7 @@
             "Model C"
           ],
           "at": "2001-01-01T12:00:00Z",
+          "verified_at": null,
           "pr": 4,
           "shot": "big"
         },
@@ -60,6 +63,7 @@
             "Model D"
           ],
           "at": "2001-01-01T13:00:00Z",
+          "verified_at": null,
           "pr": 7,
           "shot": "exact"
         },
@@ -72,6 +76,7 @@
             "Model B"
           ],
           "at": "2001-01-01T14:00:00Z",
+          "verified_at": null,
           "pr": 9,
           "shot": "inject"
         }
@@ -103,6 +108,7 @@
           "Model F"
         ],
         "at": "2001-01-03T07:00:00Z",
+        "verified_at": null,
         "pr": 14
       },
       "records": [
@@ -114,6 +120,7 @@
             "Model A"
           ],
           "at": "2001-01-02T09:00:00Z",
+          "verified_at": null,
           "pr": 2,
           "shot": "one"
         },
@@ -125,6 +132,7 @@
             "Model D"
           ],
           "at": "2001-01-03T00:00:00Z",
+          "verified_at": null,
           "pr": 10,
           "shot": "tie"
         },
@@ -136,6 +144,7 @@
             "Model F"
           ],
           "at": "2001-01-03T07:00:00Z",
+          "verified_at": null,
           "pr": 14,
           "shot": "small"
         }

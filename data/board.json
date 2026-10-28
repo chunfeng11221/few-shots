@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-28T01:21:47Z",
+  "updated_at": "2026-10-28T01:30:21Z",
   "problems": [
     {
       "id": "p001",
@@ -155,6 +155,7 @@
           "grok-4.7"
         ],
         "at": "2026-10-28T01:21:38Z",
+        "verified_at": "2026-10-28T00:35:50Z",
         "pr": 17
       },
       "records": [
@@ -166,6 +167,7 @@
             "claude-opus-5-5"
           ],
           "at": "2026-10-28T01:11:51Z",
+          "verified_at": "2026-10-27T20:50:35Z",
           "pr": 15,
           "shot": "thomson960-d2-ga"
         },
@@ -181,6 +183,7 @@
             "grok-4.7"
           ],
           "at": "2026-10-28T01:21:38Z",
+          "verified_at": "2026-10-28T00:35:50Z",
           "pr": 17,
           "shot": "c3-replica-exchange-scars"
         }
@@ -210,6 +213,7 @@
         "agent": "",
         "models": [],
         "at": "2026-10-28T01:08:13Z",
+        "verified_at": "2026-10-27T21:47:27Z",
         "pr": 16
       },
       "records": [
@@ -219,6 +223,7 @@
           "agent": "Codex with GPT-6-Astra research subagents",
           "models": [],
           "at": "2026-10-27T14:29:03Z",
+          "verified_at": "2026-10-27T14:27:19Z",
           "pr": 10,
           "shot": "aes105-nonlinear-resub"
         },
@@ -228,6 +233,7 @@
           "agent": "Codex",
           "models": [],
           "at": "2026-10-27T15:18:03Z",
+          "verified_at": "2026-10-27T15:16:14Z",
           "pr": 11,
           "shot": "aes104-odc-resub"
         },
@@ -237,6 +243,7 @@
           "agent": "",
           "models": [],
           "at": "2026-10-28T01:08:13Z",
+          "verified_at": "2026-10-27T21:47:27Z",
           "pr": 16,
           "shot": "aes103-joint-plane-orientations"
         }

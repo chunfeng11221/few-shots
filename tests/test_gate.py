@@ -63,6 +63,10 @@ class ClassifyTest(unittest.TestCase):
         self.assertEqual(t.names, ("SHOT.md", "certificate.json", "data.csv", "log.txt", "notes.md"))
         self.assertEqual(t.parts, ("problems", SANDBOX, "shots", "alice", "first-try"))
 
+    def test_verification_certificate_cannot_be_submitted(self):
+        for name in ("VERIFIED.md", "verified.md"):
+            self.assertGate("rejected", ok_files() + added(f"{P}/shots/alice/first-try/{name}"), fragment="VERIFIED.md")
+
     def test_problem_is_taken_from_the_path(self):
         t = self.classify(ok_files(problem="p001-other"))
         self.assertEqual(t.problem, "p001-other")

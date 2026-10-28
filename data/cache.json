@@ -3,23 +3,48 @@
   "merges": {
     "36a544245b474191cde8019bac8ac472fa19193d:problems/p007-thomson-problem/shots/Abreto/thomson960-d2-ga/SHOT.md": {
       "at": "2026-10-28T01:11:51Z",
-      "pr": 15
+      "pr": 15,
+      "verification": {
+        "at": "2026-10-27T20:50:35Z",
+        "hash": "d0210429d29b1b30e4c3575452b81dcaf7282d11da0f59b326a06161a9590b57",
+        "sha": "2a2851062b795c62ad62cced21109e853c88c4c0"
+      }
     },
     "e15916878b37508d127330601890b4df74a4abd9:problems/p007-thomson-problem/shots/Ronnie2025/c3-replica-exchange-scars/SHOT.md": {
       "at": "2026-10-28T01:21:38Z",
-      "pr": 17
+      "pr": 17,
+      "verification": {
+        "at": "2026-10-28T00:35:50Z",
+        "hash": "8a2d4a9c36f51f06a8558cd6517bf264352db212391639880082a55992c272d7",
+        "sha": "8665ecde63d67ac0a3bf850b64c6eeee44e8a99d"
+      }
     },
     "36682e99e566762fce52de2fb09effd2d3bed667:problems/p008-aes-sbox-circuit/shots/csbo98/aes105-nonlinear-resub/SHOT.md": {
       "at": "2026-10-27T14:29:03Z",
-      "pr": 10
+      "pr": 10,
+      "verification": {
+        "at": "2026-10-27T14:27:19Z",
+        "hash": "51dde6bd41aa79b5bb0eb93141430cc94129e15ecedea24558bf69c7459b60a0",
+        "sha": "f0e8f64821ffc8fddb2d05a140df090a3671adf8"
+      }
     },
     "be8b16af69823b63844036b3a7e77d7cbffa9a6c:problems/p008-aes-sbox-circuit/shots/HeiGeAi/aes104-odc-resub/SHOT.md": {
       "at": "2026-10-27T15:18:03Z",
-      "pr": 11
+      "pr": 11,
+      "verification": {
+        "at": "2026-10-27T15:16:14Z",
+        "hash": "8fe7b4f1f87bed620945f6d61d938701bfe3080af5a668049824be8bbf5d2bb8",
+        "sha": "a610ef2381e0d842d4171a4db82e4db148b2abdc"
+      }
     },
     "52c88cd8c7cce767c418cf8d2a0b9a7b29f40f39:problems/p008-aes-sbox-circuit/shots/fancify/aes103-joint-plane-orientations/SHOT.md": {
       "at": "2026-10-28T01:08:13Z",
-      "pr": 16
+      "pr": 16,
+      "verification": {
+        "at": "2026-10-27T21:47:27Z",
+        "hash": "e4ffc2062e7693f8eb54f4391d7d2c2e51445a8bf2e2f3f0d19bfe72c97a3031",
+        "sha": "7ef29235da46822f56f04e99fd8e7622ac41de01"
+      }
     }
   },
   "verdicts": {

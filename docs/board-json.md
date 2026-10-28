@@ -42,6 +42,7 @@
 | `agent` | string | SHOT.md 的 `agent` 字段（用的 agent 或工具），没写就是空字符串。第三方文本：只当纯文本显示 |
 | `models` | string[] | SHOT.md 的 `models` 字段，没写就是空数组。第三方文本：只当纯文本显示，不要当 HTML 或 Markdown 渲染 |
 | `at` | string | 合并进 main 的时间，UTC（关联 PR 的 `merged_at`；没有 PR 时取提交时间） |
+| `verified_at` | string \| null | 验证器首次判定这个 PR 为有效突破的时间（服务器时间，UTC，打分机器人回帖里的验证证书）。纪录的先后和显示的时间以它为准；读不到时为 null |
 | `pr` | integer | 对应的已合并 PR 号 |
 | `shot` | string | 仅 `records[]` 有：shot-id，即 `shots/<login>/<shot-id>/` |
 

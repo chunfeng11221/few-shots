@@ -43,12 +43,15 @@ CACHE_VERSION = 4
 VERDICT_CONTEXT = "few-shots/verdict"
 VERDICT_PREFIX = "有效突破"
 BOT_LOGIN = "github-actions[bot]"
+SCORE_MARKER = "<!-- few-shots:score -->"     # 打分机器人回帖的第一行（scripts/report.py MARKER）
+DATA_PREFIX = "<!-- few-shots:data "          # 第二行：隐藏数据，含首次判为有效突破的时间
 MAX_RESPONSE = 32 * 1024 * 1024
 MAX_SHOTS_PER_PROBLEM = 1000
 MAX_MODELS = 10
 MAX_MODEL_LEN = 100
 REGULAR_MODES = frozenset({"100644", "100755"})
 SHA_RE = F.COMMIT_SHA_RE
+HASH_RE = F.HASH_RE
 MD_SPECIAL_RE = re.compile(r"([\\`*_{}\[\]()<>#+!|~&])")
 TABLE_HEAD = (
     "| 题目 · Problem | 指标 · Metric | 预设基线 · Baseline | 当前纪录 · Record | 纪录保持者 · Holder "
@@ -115,6 +118,7 @@ def commit_time(root: Path, sha: str) -> str:
 class Source(Protocol):
     def merge_info(self, commit: str, path: str) -> tuple[str | None, int | None]: ...
     def verdict(self, pr: int, path: str, blob_sha: str) -> str | None: ...
+    def verification(self, pr: int) -> dict | None: ...
 
 
 Getter = Callable[[str], tuple[bytes, dict[str, str]]]
@@ -182,6 +186,28 @@ class GitHubSource:
                 continue
         return min(merged) if merged else (None, None)
 
+    def verification(self, pr: int) -> dict | None:
+        """验证器首次判定这个 PR 为有效突破的记录 {at, hash, sha}：打分机器人回帖第二行隐藏数据里的 first[]
+        （时间是服务器时间）。只认机器人账号写的回帖；读不到返回 None。纪录的先后、显示的时间和验证证书都以它为准，
+        不看 Git 提交时间。"""
+        comments = self._json(f"/repos/{self.repo}/issues/{int(pr)}/comments", {"per_page": "100"})
+        for c in comments if isinstance(comments, list) else []:
+            if not isinstance(c, dict) or (c.get("user") or {}).get("login") != BOT_LOGIN:
+                continue
+            lines = str(c.get("body") or "").split("\n")
+            if len(lines) < 2 or lines[0] != SCORE_MARKER or not (lines[1].startswith(DATA_PREFIX) and lines[1].endswith(" -->")):
+                continue
+            try:
+                data = json.loads(lines[1][len(DATA_PREFIX):-len(" -->")])
+                found = [{"at": iso_utc(e["at"]), "hash": e["hash"], "sha": e["sha"]} for e in data.get("first") or []
+                         if isinstance(e, dict) and isinstance(e.get("at"), str)
+                         and HASH_RE.fullmatch(str(e.get("hash"))) and SHA_RE.fullmatch(str(e.get("sha")))]
+            except (ValueError, KeyError, TypeError, AttributeError):
+                continue
+            if found:
+                return min(found, key=lambda e: e["at"])
+        return None
+
     def verdict(self, pr: int, path: str, blob_sha: str) -> str | None:
         """核对打分机器人的判定：合并 PR 的 head 上最新的 few-shots/verdict 由 github-actions[bot]
         写成"有效突破"，且该 head 上的 SHOT.md 与 main 上的完全相同。通过返回 None，否则返回原因。"""
@@ -228,17 +254,22 @@ def load_cache(path: Path) -> dict[str, Any]:
     }
 
 
-def shot_merge(source: Source, root: Path, commit: str, path: str, cache_in: dict, cache_out: dict) -> tuple[str, int | None]:
-    """合并时间与 PR 号；按"提交:路径"缓存。没有 PR 时取提交时间。"""
+def shot_merge(source: Source, root: Path, commit: str, path: str, cache_in: dict, cache_out: dict) -> tuple[str, int | None, dict | None]:
+    """合并时间、PR 号和验证记录 {at, hash, sha}；按"提交:路径"缓存。没有 PR 时取提交时间、没有验证记录。"""
     key = f"{commit}:{path}"
     hit = cache_in["merges"].get(key)
     at: str | None = None
     pr: int | None = None
+    verified: dict | None = None
+    cached_verified = False
     if isinstance(hit, dict) and isinstance(hit.get("at"), str):
         pr_hit = hit.get("pr")
         if pr_hit is None or (type(pr_hit) is int and pr_hit > 0):
             try:
                 at, pr = iso_utc(hit["at"]), pr_hit
+                if "verification" in hit:
+                    verified = _verification(hit["verification"])
+                    cached_verified = True
             except ValueError:
                 at = None
     if at is None:
@@ -247,8 +278,23 @@ def shot_merge(source: Source, root: Path, commit: str, path: str, cache_in: dic
             at = iso_utc(raw_at) if raw_at else commit_time(root, commit)
         except ValueError:
             raise BoardError("合并时间格式异常") from None
-    cache_out["merges"][key] = {"at": at, "pr": pr}
-    return at, pr
+    if not cached_verified:
+        verified = _verification(source.verification(pr)) if pr is not None and hasattr(source, "verification") else None
+    cache_out["merges"][key] = {"at": at, "pr": pr, "verification": verified}
+    return at, pr, verified
+
+
+def _verification(v: Any) -> dict | None:
+    """校验一份验证记录（来自 API 或缓存）：{at: UTC 时间, hash: 64 位十六进制, sha: 40 位十六进制}。"""
+    if not isinstance(v, dict) or not isinstance(v.get("at"), str):
+        return None
+    try:
+        at = iso_utc(v["at"])
+    except ValueError:
+        return None
+    if not (HASH_RE.fullmatch(str(v.get("hash"))) and SHA_RE.fullmatch(str(v.get("sha")))):
+        return None
+    return {"at": at, "hash": v["hash"], "sha": v["sha"]}
 
 
 def shot_verdict(source: Source, pr: int | None, path: str, blob: str, cache_in: dict, cache_out: dict) -> None:
@@ -274,6 +320,7 @@ class Merged:
     at: str
     pr: int | None
     agent: str = ""
+    verification: dict | None = None      # 验证证书：{at, hash, sha}
 
 
 def record_chain(problem: F.Problem, shots: list[Merged]) -> tuple[list[Merged], list[tuple[Merged, str]]]:
@@ -313,7 +360,9 @@ Warn = Callable[[str], None]
 
 
 def shot_json(s: Merged, with_shot: bool) -> dict[str, Any]:
-    out: dict[str, Any] = {"score": F.fmt(s.score), "login": s.login, "agent": s.agent, "models": list(s.models), "at": s.at, "pr": s.pr}
+    out: dict[str, Any] = {"score": F.fmt(s.score), "login": s.login, "agent": s.agent, "models": list(s.models),
+                           "at": s.at,
+                           "verified_at": s.verification["at"] if s.verification else None, "pr": s.pr}
     if with_shot:
         out["shot"] = s.shot_id
     return out
@@ -346,11 +395,11 @@ def problem_entry(root: Path, pdir: str, source: Source, cache_in: dict, cache_o
             mode, blob = blobs.get(path, ("", ""))
             if mode not in REGULAR_MODES:
                 raise ShotSkip("SHOT.md 必须是 main 上的普通文件")
-            at, pr = shot_merge(source, root, m.commit, path, cache_in, cache_out)
+            at, pr, verified = shot_merge(source, root, m.commit, path, cache_in, cache_out)
             shot_verdict(source, pr, path, blob, cache_in, cache_out)
             models = tuple(c for c in (clean_text(x, MAX_MODEL_LEN) for x in m.shot.models[:MAX_MODELS]) if c)
             agent = clean_text(m.shot.agent or "", MAX_MODEL_LEN)
-            shots.append(Merged(m.login, m.shot_id, m.shot.claimed_score, models, at, pr, agent))
+            shots.append(Merged(m.login, m.shot_id, m.shot.claimed_score, models, at, pr, agent, verified))
         except ShotSkip as err:
             warn(f"跳过 {path}：{err}")
 
@@ -435,6 +484,53 @@ def build(root: Path, source: Source, now: dt.datetime, warn: Warn, ref: str = "
     except FileNotFoundError:
         raise BoardError("找不到 README.md") from None
     return board, replace_region(readme, render_board(board)), cache_out
+
+
+# ---------- 验证证书（每个已合并 shot 目录里的 VERIFIED.md） ----------
+
+VERIFIED_NAME = "VERIFIED.md"            # 保留文件名：只由记分牌工作流生成，参与者提交里不允许出现
+LOGIN_RE = re.compile(r"^[A-Za-z0-9-]{1,39}$")
+SHOT_ID_RE = re.compile(r"^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$")
+SCORE_RE = re.compile(r"^-?[0-9]{1,80}(/[0-9]{1,80}|\.[0-9]{1,80})?$")
+
+
+def exact_decimal(score: str) -> str:
+    """分母只含 2 和 5 的（有限小数）写成小数，和验证器输出一致（如 444368.3924061973）；否则保留分数。"""
+    q = F.parse_rational(score)
+    d, twos, fives = q.denominator, 0, 0
+    while d % 2 == 0:
+        d //= 2; twos += 1
+    while d % 5 == 0:
+        d //= 5; fives += 1
+    if d != 1:
+        return score
+    places = max(twos, fives)
+    n = abs(q.numerator) * 10 ** places // q.denominator
+    whole, frac = divmod(n, 10 ** places)
+    return ("-" if q < 0 else "") + str(whole) + (f".{frac:0{places}d}".rstrip("0").rstrip(".") if places else "")
+
+
+def render_verifications(root: Path, board: dict, cache: dict) -> dict[str, str]:
+    """按 templates/VERIFIED.md 给每条纪录填一份验证证书：{仓库内路径: 文本}。模板是固定的，验证器的这次运行
+    只提供几个值（成绩、时间、哈希、提交、PR），都按格式校验过；没有验证记录的 shot 不生成。"""
+    template = (root / "templates" / VERIFIED_NAME).read_text("utf-8")
+    by_path = {k.split(":", 1)[1]: v for k, v in cache.get("merges", {}).items() if ":" in k and isinstance(v, dict)}
+    out: dict[str, str] = {}
+    for p in board.get("problems", []):
+        pdir = str(p.get("dir", "")).removeprefix(f"{F.PROBLEMS_DIR}/")
+        for r in p.get("records", []):
+            login, shot = str(r.get("login", "")), str(r.get("shot", ""))
+            if not (LOGIN_RE.fullmatch(login) and SHOT_ID_RE.fullmatch(shot) and type(r.get("pr")) is int
+                    and SCORE_RE.fullmatch(str(r.get("score", "")))):
+                continue
+            entry = by_path.get(f"{F.PROBLEMS_DIR}/{pdir}/shots/{login}/{shot}/SHOT.md") or {}
+            v = _verification(entry.get("verification"))
+            if v is None:
+                continue
+            out[f"{F.PROBLEMS_DIR}/{pdir}/shots/{login}/{shot}/{VERIFIED_NAME}"] = template.format(
+                problem=pdir, login=login, shot=shot, score=exact_decimal(r["score"]),
+                verified_at=v["at"], hash=v["hash"], sha=v["sha"], pr=r["pr"])
+    return out
 
 
 # ---------- README 渲染 ----------
@@ -527,15 +623,12 @@ def main(argv: list[str] | None = None) -> int:
         prefix = "::error::" if os.environ.get("GITHUB_ACTIONS") == "true" else "错误："
         print(prefix + clean_text(str(e), 500), file=sys.stderr)
         return 1
-    changed = [
-        name
-        for name, path, text in (
-            ("data/board.json", args.root / "data" / "board.json", dump_json(board)),
-            ("data/cache.json", args.root / "data" / "cache.json", dump_json(cache)),
-            ("README.md", args.root / "README.md", readme),
-        )
-        if write_if_changed(path, text)
-    ]
+    outputs = [
+        ("data/board.json", args.root / "data" / "board.json", dump_json(board)),
+        ("data/cache.json", args.root / "data" / "cache.json", dump_json(cache)),
+        ("README.md", args.root / "README.md", readme),
+    ] + [(rel, args.root / rel, text) for rel, text in sorted(render_verifications(args.root, board, cache).items())]
+    changed = [name for name, path, text in outputs if write_if_changed(path, text)]
     print(f"{len(board['problems'])} 道题；改动：{', '.join(changed) or '无'}")
     return 0
 

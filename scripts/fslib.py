@@ -45,6 +45,9 @@ COMMIT_SHA_RE = re.compile(r"[0-9a-f]{40}|[0-9a-f]{64}")
 HASH_RE = re.compile(r"[0-9a-f]{64}")
 
 REQUIRED_FILES = ("SHOT.md", "certificate.json")
+RESERVED_FILES = ("verified.md",)      # 验证证书：合并后由记分牌工作流按模板生成，参与者不能提交（不区分大小写）
+RESERVED_TEXT = ("VERIFIED.md 是 Few Shots 验证器生成的验证证书，合并后自动放进 shot 目录，不能自己提交",
+                 "VERIFIED.md is the verification certificate the Few Shots verifier issues after the merge; it cannot be submitted")
 ALLOWED_EXTENSIONS = (".md", ".json", ".txt", ".csv")
 
 STATUSES = (
@@ -572,6 +575,8 @@ def check_local_shot_dir(shot_dir: str | os.PathLike, problem: Problem) -> tuple
             errs.append(bi(f"{shown} 是子目录，不允许", f"{shown} is a subdirectory, which is not allowed"))
         elif not e.is_file(follow_symlinks=False):
             errs.append(bi(f"{shown} 不是普通文件", f"{shown} is not a regular file"))
+        elif e.name.lower() in RESERVED_FILES:
+            errs.append(bi(*RESERVED_TEXT))
         elif not FILE_NAME_RE.fullmatch(e.name):
             errs.append(bi("文件名不合规：只允许字母数字开头的 .md/.json/.txt/.csv，不允许隐藏文件",
                            "Invalid file name: only .md/.json/.txt/.csv names that start with a letter or digit; "
