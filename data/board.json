@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-28T03:02:21Z",
+  "updated_at": "2026-10-28T07:35:43Z",
   "problems": [
     {
       "id": "p001",
@@ -258,12 +258,12 @@
         {
           "score": "103",
           "login": "fancify",
-          "agent": "",
+          "agent": "other: ChatGPT dot",
           "models": [],
           "at": "2026-10-28T01:08:13Z",
           "verified_at": "2026-10-27T21:47:27Z",
           "pr": 16,
-          "tool": "",
+          "tool": "other: ChatGPT dot",
           "model": "",
           "model_incomplete": false,
           "shot": "aes103-joint-plane-orientations"
