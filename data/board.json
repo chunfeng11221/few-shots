@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-28T17:41:29Z",
+  "updated_at": "2026-10-29T03:28:19Z",
   "problems": [
     {
       "id": "p001",
@@ -225,8 +225,8 @@
         "verified_at": "2026-10-28T03:00:31Z",
         "pr": 25,
         "tool": "Codex",
-        "model": "gpt-6",
-        "model_incomplete": true
+        "model": "gpt-6-astra",
+        "model_incomplete": false
       },
       "records": [
         {
@@ -277,8 +277,8 @@
           "verified_at": "2026-10-28T03:00:31Z",
           "pr": 25,
           "tool": "Codex",
-          "model": "gpt-6",
-          "model_incomplete": true,
+          "model": "gpt-6-astra",
+          "model_incomplete": false,
           "shot": "aes102-field-plane-offsets"
         }
       ],
