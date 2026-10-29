@@ -19,3 +19,7 @@ source = "https://github.com/few-shots/few-shots/pull/11#issuecomment-6476204284
 ["p008-aes-sbox-circuit/fancify/aes103-joint-plane-orientations"]
 agent = "other: ChatGPT dot"
 source = "https://github.com/few-shots/few-shots/pull/16#issuecomment-6463372377"
+
+["p008-aes-sbox-circuit/huangxin-design/aes102-field-plane-offsets"]
+model = "gpt-6-astra"
+source = "https://github.com/few-shots/few-shots/pull/25#issuecomment-6487061969"
